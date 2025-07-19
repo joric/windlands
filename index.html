@@ -153,6 +153,7 @@ function loadMarkers(data, settings) {
     maxNativeZoom: 5,
     maxZoom: 5,
     edgeBufferTiles: 2,
+    bounds: bounds, // mandatory to avoid 404 errors
   }).addTo(map);
 
   //let imageFile=`data/${area}/8k.png`
