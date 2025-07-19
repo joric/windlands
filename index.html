@@ -239,6 +239,9 @@ function loadMap(mapId) {
 
 window.onload = function() {
   window.addEventListener("keydown", function (e) {
+    if (e.target.id.startsWith('searchtext')) {
+      return;
+    }
     switch (e.code) {
       case 'Digit1': loadMap(Object.keys(maps)[0]); break;
       case 'Digit2': loadMap(Object.keys(maps)[1]); break;
