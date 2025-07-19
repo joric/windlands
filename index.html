@@ -66,6 +66,8 @@ html, body, #map { width:100%; height: 100%; margin: 0; padding: 0; background: 
   filter: hue-rotate(90deg);
 }
 
+.found { opacity: 30%; }
+
 </style>
 
 <div id="map"></div>
@@ -104,11 +106,28 @@ let maps = {
 
 let map = null;
 
-function loadMarkers(data, settings) {
+let localDataName = 'joricsWindlands';
+let localData = JSON.parse(localStorage.getItem(localDataName)) || {};
+let settings = null;
+
+function saveSettings() {
+  localStorage.setItem(localDataName, JSON.stringify(localData));
+}
+
+function loadMarkers(data, mapId) {
+
+  for (id in maps) {
+    localData[id] = localData[id] || {};
+    localData[id].markedItems = localData[id].markedItems || {};
+  }
+
+  localData.mapId = mapId;
+  settings = localData[mapId];
+  saveSettings();
 
   if (map) map.remove();
 
-  let area = settings.area;
+  let area = mapId;
 
   let d = 2048*2;
 
@@ -172,25 +191,49 @@ function loadMarkers(data, settings) {
     feature.geometry.coordinates = [coords[0], -coords[2], coords[1]];
   });
 
-  const customMarker = (latlng, feature) => L.marker(latlng, {icon: L.divIcon({className: feature.properties.type, iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
+  const customMarker = (latlng, feature) => L.marker(latlng, {id: feature.properties.title, icon: L.divIcon({className: feature.properties.type, iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
 
   let searchLayer = L.geoJSON(data, {
     filter: feature => feature.properties.area==area && feature.properties.type!='other',
     pointToLayer: (feature, latlng) => customMarker(latlng, feature),
-  }).bindPopup(marker => { return '<pre>'+JSON.stringify(marker.feature, null, 2)+'</pre>' + String(marker.getLatLng())})
-    .bindTooltip(marker => marker.feature.properties.title).addTo(map)
+  }).bindPopup(marker => { return `<pre>${JSON.stringify(marker.feature, null, 2)}</pre>`
+    + `<input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}> <label for="${marker.options.id}">Found</label>`},
+    {offset: L.point(0, -32)})
+    .bindTooltip(marker => `${marker.options.id}`).addTo(map)
 
+    /*
+    .on('contextmenu',e=>{
+      toggleFound(e.sourceTarget.options.id);
+    });
+    */
 
   map.addControl( new L.Control.Search({layer: searchLayer, hideMarkerOnCollapse: true, initial: false}) );
 
+}
 
+function toggleFound(id) {
+  if (settings.markedItems[id]==true) {
+    delete settings.markedItems[id];
+  } else {
+    settings.markedItems[id]=true;
+  }
+  saveSettings();
+  markItems();
+}
+
+function markItems() {
+  map.eachLayer(function(layer) {
+    if (!(layer instanceof L.Marker)) return;
+    let found = settings.markedItems[layer.options.id]==true;
+    layer._icon.classList[found ? 'add' : 'remove']('found');
+  });
 }
 
 function loadMap(mapId) {
   fetch('markers.json').then(r=>r.json()).then(data=>{
-    loadMarkers(data, maps[mapId]);
+    loadMarkers(data, maps[mapId].area);
+    markItems();
   })
-
   document.querySelectorAll('.btn').forEach(e=>e.id==mapId ? e.classList.add('selected') : e.classList.remove('selected'));
 }
 
