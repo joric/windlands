@@ -17,6 +17,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
+<script src="https://cdn.jsdelivr.net/npm/leaflet-edgebuffer@1.0.7/src/leaflet.edgebuffer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tilelayer-canvas@1.1.5/index.min.js"></script>
+
 <style>
 
 html, body, #map { width:100%; height: 100%; margin: 0; padding: 0; background: black; }
@@ -104,7 +107,7 @@ function loadMarkers(data, settings) {
 
   let area = settings.area;
 
-  let d = 2048;
+  let d = 2048*2;
 
   let m = {
     size: d,
@@ -145,33 +148,30 @@ function loadMarkers(data, settings) {
     //maxBounds: L.latLngBounds(bounds).pad(0.5), // elastic-y bounds, nice to have
   });
 
-/*
-  let tilesLayer = L.tileLayer('https://joric.github.io/maps/fallout-london/tiles/LondonWorld/{z}/{x}/{y}.png', {
-    attribution: '<a href="https://github.com/joric/maps/wiki/">Joric\'s Maps</a>',
+  let tilesLayer = L.tileLayer.canvas(`tiles/${area}/{z}/{x}/{y}.jpg`, {
     tileSize: tileSize,
-    maxNativeZoom: 2,
+    maxNativeZoom: 5,
+    maxZoom: 5,
+    edgeBufferTiles: 2,
   }).addTo(map);
-*/
 
-  let imageFile=`data/${area}/8k.png`
+  //let imageFile=`data/${area}/8k.png`
+  //const imageOverlay = L.imageOverlay(imageFile, [[-d, -d], [d, d]]).addTo(map);
 
-  const imageOverlay = L.imageOverlay(imageFile, [[-d, -d], [d, d]]).addTo(map);
+  data.features.forEach(feature => {
+    const coords = feature.geometry.coordinates;
+    // Assuming coordinates format is [x, y, z]
+    // remap to [x, z, y]
+    feature.geometry.coordinates = [coords[0], -coords[2], coords[1]];
+  });
 
+  const customMarker = (latlng, feature) => L.marker(latlng, {icon: L.divIcon({className: feature.properties.type, iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
 
-    data.features.forEach(feature => {
-      const coords = feature.geometry.coordinates;
-      // Assuming coordinates format is [x, y, z]
-      // remap to [x, z, y]
-      feature.geometry.coordinates = [coords[0], -coords[2], coords[1]];
-    });
-
-    const customMarker = (latlng, feature) => L.marker(latlng, {icon: L.divIcon({className: feature.properties.type, iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
-
-    L.geoJSON(data, {
-      filter: feature => feature.properties.area==area && feature.properties.type!='other',
-      pointToLayer: (feature, latlng) => customMarker(latlng, feature),
-    }).bindPopup(marker => { return '<pre>'+JSON.stringify(marker.feature, null, 2)+'</pre>' + String(marker.getLatLng())})
-      .bindTooltip(marker => marker.feature.properties.title).addTo(map)
+  L.geoJSON(data, {
+    filter: feature => feature.properties.area==area && feature.properties.type!='other',
+    pointToLayer: (feature, latlng) => customMarker(latlng, feature),
+  }).bindPopup(marker => { return '<pre>'+JSON.stringify(marker.feature, null, 2)+'</pre>' + String(marker.getLatLng())})
+    .bindTooltip(marker => marker.feature.properties.title).addTo(map)
 
 }
 
