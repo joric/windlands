@@ -20,6 +20,9 @@
 <script src="https://cdn.jsdelivr.net/npm/leaflet-edgebuffer@1.0.7/src/leaflet.edgebuffer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tilelayer-canvas@1.1.5/index.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/leaflet-search@4.0.0/dist/leaflet-search.src.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-search@4.0.0/dist/leaflet-search.src.min.css">
+
 <style>
 
 html, body, #map { width:100%; height: 100%; margin: 0; padding: 0; background: black; }
@@ -146,7 +149,10 @@ function loadMarkers(data, settings) {
     zoom: 1, // mandatory, need to set zoom and center first (c)
     center: center, // mandatory
     //maxBounds: L.latLngBounds(bounds).pad(0.5), // elastic-y bounds, nice to have
+    zoomControl: false,
   });
+
+  map.addControl(L.control.zoom({ position: 'bottomright' }));
 
   let tilesLayer = L.tileLayer.canvas(`tiles/${area}/{z}/{x}/{y}.jpg`, {
     tileSize: tileSize,
@@ -168,11 +174,15 @@ function loadMarkers(data, settings) {
 
   const customMarker = (latlng, feature) => L.marker(latlng, {icon: L.divIcon({className: feature.properties.type, iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
 
-  L.geoJSON(data, {
+  let searchLayer = L.geoJSON(data, {
     filter: feature => feature.properties.area==area && feature.properties.type!='other',
     pointToLayer: (feature, latlng) => customMarker(latlng, feature),
   }).bindPopup(marker => { return '<pre>'+JSON.stringify(marker.feature, null, 2)+'</pre>' + String(marker.getLatLng())})
     .bindTooltip(marker => marker.feature.properties.title).addTo(map)
+
+
+  map.addControl( new L.Control.Search({layer: searchLayer, hideMarkerOnCollapse: true, initial: false}) );
+
 
 }
 
