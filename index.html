@@ -64,15 +64,19 @@ html, body, #map { width:100%; height: 100%; margin: 0; padding: 0; background: 
 }
 
 .checkpoint img {
-  filter: hue-rotate(180deg);
+  filter: hue-rotate(180deg) brightness(1.5);
 }
 
 .secret img {
   filter: hue-rotate(-90deg);
 }
 
-.part img {
-  filter: hue-rotate(90deg);
+.droid img {
+  filter: hue-rotate(150deg);
+}
+
+.other img {
+  filter: hue-rotate(60deg);
 }
 
 .found { opacity: 50%; }
@@ -119,6 +123,18 @@ let mapParam = {};
 
 function saveSettings() {
   localStorage.setItem(localDataName, JSON.stringify(localData));
+}
+
+const capitalize = s => s[0].toUpperCase()+s.slice(1);
+
+function getType(feature) {
+  let prefixes = {'relic': `{area}_Relic`, 'checkpoint': 'Checkpoint', 'secret': 'Secret', 'droid': 'DroidLocation'};
+  for (const[k,template] of Object.entries(prefixes)) {
+    if (feature.properties.name.startsWith(template.replace('{area}', capitalize(feature.properties.area)))) {
+      return k;
+    }
+  }
+  return 'other';
 }
 
 function loadMarkers(data, mapId) {
@@ -194,7 +210,7 @@ function loadMarkers(data, mapId) {
     let tilesLayer = L.tileLayer.canvas(config.tiles, {
       tileSize: tileSize,
       maxNativeZoom: config.zoomlevels,
-      maxZoom: config.zoomlevels,
+      // maxZoom: config.zoomlevels,
       edgeBufferTiles: 2,
       bounds: bounds, // mandatory to avoid 404 errors
       attribution: '<a href="https://github.com/joric/windlands/" target=_blank>Joric&apos;s Windlands Maps</a>',
@@ -206,9 +222,9 @@ function loadMarkers(data, mapId) {
     }
   }
 
-  const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.title, icon: L.divIcon({className: feature.properties.type, iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
+  const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: L.divIcon({className: getType(feature), iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
 
-  let markerNames = {'relic':'Relics', 'checkpoint': 'Checkpoints', 'secret': 'Secrets'};
+  let markerNames = {'relic':'Relics', 'checkpoint': 'Checkpoints', 'secret': 'Secrets', 'droid': 'Droid', 'other': 'Other'};
 
   let layers = {};
   for (const [type, name] of Object.entries(markerNames)) {
@@ -217,14 +233,15 @@ function loadMarkers(data, mapId) {
 
   for (feature of data.features) {
     if (feature.properties.area != mapId) continue;
-    let layer = layers[feature.properties.type];
+    let type = getType(feature);
+    let layer = layers[type];
     if (!layer) continue;
-    let marker = customMarker([-feature.geometry.coordinates[2], feature.geometry.coordinates[0]], feature);
+    let marker = customMarker([-feature.geometry.coordinates[2], feature.geometry.coordinates[0]], feature, area);
     let formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
     let formatCoords = c => `${c[0]}, ${-c[2]}, ${c[1]}`;
     marker.bindPopup(marker => { //return `<pre>${JSON.stringify(marker.options.feature, null, 2)}</pre>`
       return `<p><b>${marker.options.id}</b>`
-        + `<br/>${marker.options.feature.properties.type}`
+        + `<br/>${getType(marker.options.feature)}`
         + `<br/><small>${marker.options.feature.properties.area}</small>`
         + `<br/><small>${formatCoords(marker.options.feature.geometry.coordinates)}</small>`
         + `<p><input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`

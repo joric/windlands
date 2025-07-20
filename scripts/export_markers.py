@@ -8,12 +8,9 @@ def add_children(p):
     if 'children' not in p:
         return
     for c in p['children']:
-        marker_type = next((k for k,v in {'relic':f'{area}_Relic', 'checkpoint': 'Checkpoint', 'secret': 'Secret'}.items() if c['name'].startswith(v)), 'other')
-
-        if marker_type and 'position' in c:
+        if 'position' in c:
             coord = [round(x,2) for x in c['position']]
-            title = c['name']
-            features.append({'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': coord}, 'properties': {'type': marker_type, 'title':title, 'area': area.lower()}})
+            features.append({'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': coord}, 'properties': {'name': c['name'], 'area': area.lower()}})
         add_children(c)
 
 for area in areas:
