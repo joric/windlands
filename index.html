@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Joric's Windlands 2</title>
+<title>Joric's Windlands 2 Map</title>
 <base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
@@ -11,8 +11,8 @@
 <meta property="og:image" content="https://repository-images.githubusercontent.com/1022335015/b76628db-e0f8-4355-998b-31316921313f" />
 <meta property="og:site_name" content="Joric" />
 <meta property="og:type" content="object" />
-<meta property="og:title" content="Joric's Windlands" />
-<meta property="og:description" content="Windlands 2 Interactive Map" />
+<meta property="og:title" content="Joric's Windlands Maps" />
+<meta property="og:description" content="Windlands Interactive Maps" />
 
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.8.0/dist/leaflet.min.css">
@@ -200,7 +200,7 @@ function loadMarkers(data, mapId) {
       maxZoom: 5,
       edgeBufferTiles: 2,
       bounds: bounds, // mandatory to avoid 404 errors
-      attribution: '<a href="https://github.com/joric/windlands/" target=_blank>Joric&apos;s Windlands</a>',
+      attribution: '<a href="https://github.com/joric/windlands/" target=_blank>Joric&apos;s Windlands Maps</a>',
     })
 
     baseLayers[id] = tilesLayer;
