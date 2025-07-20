@@ -1,3 +1,5 @@
+// add empty GameObject to scene, drag script to GameObject components, run the scene
+
 using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
