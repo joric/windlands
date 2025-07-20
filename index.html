@@ -461,10 +461,9 @@ window.onload = function() {
       let [k,v] = s.split('=');
       mapParam[k] = v;
     }
+    // clear location hash
+    history.pushState('', document.title, window.location.pathname + window.location.search);
   }
-
-  // clear location hash
-  history.pushState('', document.title, window.location.pathname + window.location.search);
 
   window.addEventListener("keydown", function (e) {
     if (e.target.id.startsWith('searchtext')) {
