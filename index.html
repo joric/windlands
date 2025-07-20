@@ -200,6 +200,7 @@ function loadMarkers(data, mapId) {
       maxZoom: 5,
       edgeBufferTiles: 2,
       bounds: bounds, // mandatory to avoid 404 errors
+      attribution: '<a href="https://github.com/joric/windlands/" target=_blank>Joric&apos;s Windlands</a>',
     })
 
     baseLayers[id] = tilesLayer;
@@ -355,7 +356,6 @@ function loadMarkers(data, mapId) {
     actions: [
       action('Share', '&#x1F517;',[
         subAction('Copy Map View URL', ()=>{copyToClipboard(getViewURL()); alert('Map View URL copied to clipboard.');}),
-        subAction('Open Project Homepage', ()=>window.open('https://github.com/joric/windlands/', '_blank')),
       ]),
       action('Local Data', '&#x1F4C1;',[
         subAction('Load Settings', loadLocalData),
