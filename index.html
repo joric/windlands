@@ -119,6 +119,7 @@ function loadMarkers(data, mapId) {
   for (id in maps) {
     localData[id] = localData[id] || {};
     localData[id].markedItems = localData[id].markedItems || {};
+    localData[id].activeLayers = localData[id].activeLayers || {'relic':true };
   }
 
   localData.mapId = mapId;
@@ -167,47 +168,85 @@ function loadMarkers(data, mapId) {
     crs: crs,
     zoom: 1, // mandatory, need to set zoom and center first (c)
     center: center, // mandatory
-    //maxBounds: L.latLngBounds(bounds).pad(0.5), // elastic-y bounds, nice to have
+    maxBounds: L.latLngBounds(bounds).pad(0.5), // elastic-y bounds, nice to have
     zoomControl: false,
   });
 
   map.addControl(L.control.zoom({ position: 'bottomright' }));
 
-  let tilesLayer = L.tileLayer.canvas(`tiles/${area}/{z}/{x}/{y}.jpg`, {
-    tileSize: tileSize,
-    maxNativeZoom: 5,
-    maxZoom: 5,
-    edgeBufferTiles: 2,
-    bounds: bounds, // mandatory to avoid 404 errors
-  }).addTo(map);
+  let baseLayers = {};
 
-  //let imageFile=`data/${area}/8k.png`
-  //const imageOverlay = L.imageOverlay(imageFile, [[-d, -d], [d, d]]).addTo(map);
+  for (const [id,config] of Object.entries(maps)) {
+    let tilesLayer = L.tileLayer.canvas(`tiles/${area}/{z}/{x}/{y}.jpg`, {
+      tileSize: tileSize,
+      maxNativeZoom: 5,
+      maxZoom: 5,
+      edgeBufferTiles: 2,
+      bounds: bounds, // mandatory to avoid 404 errors
+    })
 
-  data.features.forEach(feature => {
-    const coords = feature.geometry.coordinates;
-    // Assuming coordinates format is [x, y, z]
-    // remap to [x, z, y]
-    feature.geometry.coordinates = [coords[0], -coords[2], coords[1]];
+    baseLayers[id] = tilesLayer;
+    if (id==mapId) {
+      tilesLayer.addTo(map);
+    }
+  }
+
+  const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, title: feature.properties.title, id: feature.properties.title, icon: L.divIcon({className: feature.properties.type, iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
+
+  let markerNames = {'relic':'Relics', 'checkpoint': 'Checkpoints', 'secret': 'Secrets'};
+
+  let layers = {};
+  for (const [type, name] of Object.entries(markerNames)) {
+    layers[type] = L.layerGroup();
+  }
+
+  for (feature of data.features) {
+    if (feature.properties.area != mapId) continue;
+    let layer = layers[feature.properties.type];
+    if (!layer) continue;
+    let marker = customMarker([-feature.geometry.coordinates[2], feature.geometry.coordinates[0]], feature);
+    marker.bindPopup(marker => { return `<pre>${JSON.stringify(marker.options.feature, null, 2)}</pre>`
+      + `<input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`
+      + `<label for="${marker.options.id}">Found</label>`},
+      {offset: L.point(0, -32)})
+    .bindTooltip(marker => `${marker.options.id}`)
+    .addTo(layer)
+  }
+
+  map.addControl( new L.Control.Search({layer: L.featureGroup(Object.values(layers)), hideMarkerOnCollapse: true, initial: false, position: 'topleft'}) );
+
+  let layercontrol = L.control.layers(baseLayers, layers, {collapsed: false, position: 'bottomleft'}).addTo(map);
+
+  for (let id in layers) {
+    if (!settings.activeLayers[id]) {
+      map.removeLayer(layers[id]);
+    }
+  }
+
+  map.on('baselayerchange', function(e) {
+    loadMap(e.name);
+    saveSettings();
   });
 
-  const customMarker = (latlng, feature) => L.marker(latlng, {id: feature.properties.title, icon: L.divIcon({className: feature.properties.type, iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
+  map.on('overlayadd', function(e) {
+    settings.activeLayers[e.name] = true;
+    markItems();
+    saveSettings();
+  });
 
-  let searchLayer = L.geoJSON(data, {
-    filter: feature => feature.properties.area==area && feature.properties.type!='other',
-    pointToLayer: (feature, latlng) => customMarker(latlng, feature),
-  }).bindPopup(marker => { return `<pre>${JSON.stringify(marker.feature, null, 2)}</pre>`
-    + `<input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}> <label for="${marker.options.id}">Found</label>`},
-    {offset: L.point(0, -32)})
-    .bindTooltip(marker => `${marker.options.id}`).addTo(map)
+  map.on('overlayremove', function(e) {
+    delete settings.activeLayers[e.name];
+    markItems();
+    saveSettings();
+  });
 
-    /*
-    .on('contextmenu',e=>{
-      toggleFound(e.sourceTarget.options.id);
-    });
-    */
+  map.on('moveend zoomend', function(e) {
+    settings.center = [map.getCenter().lat, map.getCenter().lng]; // avoid circular refs here
+    settings.zoom = map.getZoom();
+    saveSettings();
+  });
 
-  map.addControl( new L.Control.Search({layer: searchLayer, hideMarkerOnCollapse: true, initial: false}) );
+  if (settings.center && settings.zoom) map.setView(settings.center, settings.zoom);
 
 }
 
@@ -246,23 +285,11 @@ window.onload = function() {
       case 'Digit1': loadMap(Object.keys(maps)[0]); break;
       case 'Digit2': loadMap(Object.keys(maps)[1]); break;
       case 'Digit3': loadMap(Object.keys(maps)[2]); break;
-      case 'Digit4': loadMap(Object.keys(maps)[3]); break;
     }
   });
 
-  let nodes = [];
-  for (const [id,settings] of Object.entries(maps)) {
-    let a = document.createElement('button');
-    a.textContent = settings.name;
-    a.className = 'btn';
-    a.id = id;
-    a.href = '#' + id;
-    a.onclick = e=> loadMap(e.target.href.split('#')[1])||false;
-    nodes.push(a);
-  }
-  controls.replaceChildren(...nodes);
-
-  loadMap('jungle');
+  localData.mapId = localData.mapId || Object.keys(maps)[0];
+  loadMap(localData.mapId);
 }
 
 </script>
