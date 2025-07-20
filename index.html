@@ -215,7 +215,7 @@ function loadMarkers(data, mapId) {
 
   map.addControl( new L.Control.Search({layer: L.featureGroup(Object.values(layers)), hideMarkerOnCollapse: true, initial: false, position: 'topleft'}) );
 
-  let layercontrol = L.control.layers(baseLayers, layers, {collapsed: false, position: 'bottomleft'}).addTo(map);
+  let layercontrol = L.control.layers(baseLayers, layers, {collapsed: true, position: 'bottomleft'}).addTo(map);
 
   for (let id in layers) {
     if (!settings.activeLayers[id]) {
