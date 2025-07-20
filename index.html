@@ -261,72 +261,92 @@ function loadMarkers(data, mapId) {
 
   if (settings.center && settings.zoom) map.setView(settings.center, settings.zoom);
 
-  let subAction = L.Toolbar2.Action.extend({
-    initialize:function(map,myAction){this.map=map;this.myAction=myAction;L.Toolbar2.Action.prototype.initialize.call(this);},
-    addHooks:function(){ this.myAction.disable(); }
+  // add toolbar (see https://github.com/Leaflet/Leaflet.toolbar/issues/63)
+  let ImmediateAction = L.Toolbar2.Action.extend({
+    initialize: function(map, myAction) {
+      L.Toolbar2.Action.prototype.initialize.call(this);
+      this.disableTime = Date.now();
+      map.on('click', () => {
+        this.disable();
+      });
+    },
+    enable: function() {
+      if (Date.now() - this.disableTime > 100) {
+        L.Toolbar2.Action.prototype.enable.call(this);
+      }
+    },
+    disable: function() {
+      if (this._enabled) {
+        this.disableTime = Date.now();
+      }
+      L.Toolbar2.Action.prototype.disable.call(this);
+    },
   });
 
-  new L.Toolbar2.Control({
-      position: 'bottomleft',
-      actions: [
-        // share button
-        L.Toolbar2.Action.extend({
-          options: {
-            toolbarIcon:{html: '&#x1F517;', tooltip: 'Share'},
-            subToolbar: new L.Toolbar2({ 
-              actions: [
-                subAction.extend({
-                  options:{toolbarIcon:{html:'Open Project Homepage', tooltip: 'Open Project Homepage'}},
-                  addHooks:function() {
-                    //copyToClipboard(getViewURL());
-                    window.open('https://github.com/joric/windlands/', '_blank');
-                    subAction.prototype.addHooks.call(this); // closes sub-action
-                  }
-                }),
-                subAction.extend({
-                  options:{toolbarIcon:{html:'&times;', tooltip: 'Close'}}
-                }),
-              ],
-            })
-          }
-        }),
-        // load game button
-        L.Toolbar2.Action.extend({
-          options: {
-            toolbarIcon:{html: '&#x1F4C1;', tooltip: 'Load/Save Settings'},
-            subToolbar: new L.Toolbar2({ 
-              actions: [
-                subAction.extend({
-                  options:{toolbarIcon:{html:'Load Settings', tooltip: 'Load game save (*.sav) to mark collected items (Alt+R)'}},
-                  addHooks: function () {
-                    loadLocalData();
-                    subAction.prototype.addHooks.call(this);
-                  }
-                }),
-                subAction.extend({
-                  options:{toolbarIcon:{html:'Save Settings', tooltip: 'Save Settings to File'}},
-                  addHooks:function() {
-                    saveLocalData();
-                    subAction.prototype.addHooks.call(this);
-                  }
-                }),
-                subAction.extend({
-                  options:{toolbarIcon:{html:'Reset Settings', tooltip: 'Reset All Settings'}},
-                  addHooks: function () { 
-                    resetLocalData();
-                    subAction.prototype.addHooks.call(this);
-                  }
-                }),
-                subAction.extend({
-                  options:{toolbarIcon:{html:'&times;', tooltip: 'Close'}}
-                }),
-              ],
-            })
-          }
-        }),
-      ],
-  }).addTo(map);
+  let ImmediateSubAction = L.Toolbar2.Action.extend({
+    initialize: function(map, myAction) {
+      this.map = map;
+      this.myAction = myAction;
+      L.Toolbar2.Action.prototype.initialize.call(this);
+    },
+    addHooks: function() {
+      this.myAction.disable();
+    }
+  });
 
+  let cancelAction = ImmediateSubAction.extend({
+      options: {
+          toolbarIcon: {
+              html: '&times;',
+              tooltip: 'Cancel'
+          }
+      }
+  });
+
+  function action(tooltip, icon, actions) {
+    return ImmediateAction.extend({
+      options: {
+        toolbarIcon: {
+          html: icon,
+          tooltip: tooltip,
+        },
+        subToolbar: new L.Toolbar2({
+          actions: [...actions, cancelAction],
+        })
+      },
+    });
+  }
+
+  function subAction(html, callback, tooltip) {
+    return ImmediateSubAction.extend({
+      options: {
+          toolbarIcon: {
+              html: html,
+              tooltip: tooltip||html,
+          }
+      },
+      addHooks: function () {
+          if (typeof callback === 'function') {
+              callback();
+          }
+          ImmediateSubAction.prototype.addHooks.call(this);
+      }
+    });
+  }
+
+  new L.Toolbar2.Control({
+    position: 'bottomleft',
+    actions: [
+      action('Share', '&#x1F517;',[
+        subAction('Open Project Homepage', ()=>window.open('https://github.com/joric/windlands/', '_blank')),
+      ]),
+      action('Local Data', '&#x1F4C1;',[
+        subAction('Load Settings', loadLocalData),
+        subAction('Save Settings', saveLocalData),
+        subAction('Reset Settings', resetLocalData),
+      ]),
+    ],
+  }).addTo(map);
 
 }
 
