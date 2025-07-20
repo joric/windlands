@@ -1,5 +1,6 @@
 // create an orthographic camera and point it down, set camera size to map in game units (e.g., 2048)
 // in project settings, set Maximum LOD Level to 1 for overhead screenshots, copy script to project
+// the script appears in Unity top menu - Tools - ScreenshotTool
 
 using UnityEngine;
 using UnityEditor;
