@@ -90,26 +90,23 @@ html, body, #map { width:100%; height: 100%; margin: 0; padding: 0; background: 
 
 let maps = {
   'jungle': {
-    name: 'Jungle',
-    area: 'jungle',
     bounds: [[-2048, -2048], [2048, 2048]],
     center: [0, 0],
-    zoomlevels: 4,
+    tiles: 'tiles/jungle/{z}/{x}/{y}.jpg',
+    zoomlevels: 5,
   },
 
   'desert': {
-    name: 'Desert',
-    area: 'desert',
     bounds: [[-2048, -2048], [2048, 2048]],
     center: [0, 0],
-    zoomlevels: 4,
+    tiles: 'tiles/desert/{z}/{x}/{y}.jpg',
+    zoomlevels: 5,
   },
   'mountain': {
-    name: 'Mountain',
-    area: 'mountain',
     bounds: [[-2048, -2048], [2048, 2048]],
     center: [0, 0],
-    zoomlevels: 4,
+    tiles: 'tiles/mountain/{z}/{x}/{y}.jpg',
+    zoomlevels: 5,
   },
 }
 
@@ -140,6 +137,7 @@ function loadMarkers(data, mapId) {
   if (map) map.remove();
 
   let area = mapId;
+  let config = maps[mapId];
 
   let d = 2048*2;
 
@@ -194,10 +192,10 @@ function loadMarkers(data, mapId) {
   let baseLayers = {};
 
   for (const [id,config] of Object.entries(maps)) {
-    let tilesLayer = L.tileLayer.canvas(`tiles/${area}/{z}/{x}/{y}.jpg`, {
+    let tilesLayer = L.tileLayer.canvas(config.tiles, {
       tileSize: tileSize,
-      maxNativeZoom: 5,
-      maxZoom: 5,
+      maxNativeZoom: config.zoomlevels,
+      maxZoom: config.zoomlevels+1,
       edgeBufferTiles: 2,
       bounds: bounds, // mandatory to avoid 404 errors
       attribution: '<a href="https://github.com/joric/windlands/" target=_blank>Joric&apos;s Windlands Maps</a>',
@@ -246,7 +244,7 @@ function loadMarkers(data, mapId) {
   let layercontrol = L.control.layers(baseLayers, layers, {collapsed: true, position: 'topright'}).addTo(map);
 
   for (let id in layers) {
-    if (!settings.activeLayers[id]) {
+    if (!(settings.activeLayers[id])) {
       map.removeLayer(layers[id]);
     }
   }
@@ -407,7 +405,7 @@ function markItems() {
 
 function loadMap(mapId) {
   fetch('markers.json').then(r=>r.json()).then(data=>{
-    loadMarkers(data, maps[mapId].area);
+    loadMarkers(data, mapId);
     markItems();
   })
   document.querySelectorAll('.btn').forEach(e=>e.id==mapId ? e.classList.add('selected') : e.classList.remove('selected'));
