@@ -23,6 +23,9 @@
 <script src="https://cdn.jsdelivr.net/npm/leaflet-search@4.0.0/dist/leaflet-search.src.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-search@4.0.0/dist/leaflet-search.src.min.css">
 
+<script src="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@4.0.0/Control.FullScreen.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@4.0.0/Control.FullScreen.min.css">
+
 <style>
 
 html, body, #map { width:100%; height: 100%; margin: 0; padding: 0; background: black; }
@@ -109,6 +112,7 @@ let map = null;
 let localDataName = 'joricsWindlands';
 let localData = JSON.parse(localStorage.getItem(localDataName)) || {};
 let settings = null;
+let searchControl = null;
 
 function saveSettings() {
   localStorage.setItem(localDataName, JSON.stringify(localData));
@@ -213,7 +217,10 @@ function loadMarkers(data, mapId) {
     .addTo(layer)
   }
 
-  map.addControl( new L.Control.Search({layer: L.featureGroup(Object.values(layers)), hideMarkerOnCollapse: true, initial: false, position: 'topleft'}) );
+  searchControl = new L.Control.Search({layer: L.featureGroup(Object.values(layers)), hideMarkerOnCollapse: true, initial: false, position: 'topleft'})
+  map.addControl(searchControl);
+
+  L.control.fullscreen({ position: 'bottomright', forceSeparateButton: true}).addTo(map);
 
   let layercontrol = L.control.layers(baseLayers, layers, {collapsed: true, position: 'bottomleft'}).addTo(map);
 
@@ -282,6 +289,14 @@ window.onload = function() {
       return;
     }
     switch (e.code) {
+      case 'KeyF':
+        if (e.ctrlKey) {
+          searchControl.expand();
+          e.preventDefault();
+        } else {
+          map.toggleFullscreen();
+        }
+        break;
       case 'Digit1': loadMap(Object.keys(maps)[0]); break;
       case 'Digit2': loadMap(Object.keys(maps)[1]); break;
       case 'Digit3': loadMap(Object.keys(maps)[2]); break;
