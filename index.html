@@ -229,7 +229,7 @@ function loadMarkers(data, mapId) {
       return `<p><b>${marker.options.id}</b>`
         + `<br/>${marker.options.feature.properties.type}`
         + `<br/><small>${marker.options.feature.properties.area}</small>`
-        //+ `<br/><small>${formatCoords(marker.options.feature.geometry.coordinates)}</small>`
+        + `<br/><small>${formatCoords(marker.options.feature.geometry.coordinates)}</small>`
         + `<p><input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`
         + `<label for="${marker.options.id}">Found</label>`
       },
