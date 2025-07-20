@@ -75,8 +75,12 @@ html, body, #map { width:100%; height: 100%; margin: 0; padding: 0; background: 
   filter: hue-rotate(150deg);
 }
 
-.other img {
+.fruit img {
   filter: hue-rotate(60deg);
+}
+
+.other img {
+  filter: saturate(0);
 }
 
 .found { opacity: 50%; }
@@ -120,6 +124,7 @@ let localData = JSON.parse(localStorage.getItem(localDataName)) || {};
 let settings = null;
 let searchControl = null;
 let mapParam = {};
+let markerNames = {'relic':'Relics', 'checkpoint': 'Checkpoints', 'secret': 'Secrets', 'droid': 'Droid', 'fruit': 'Fruits', 'other': 'Other'};
 
 function saveSettings() {
   localStorage.setItem(localDataName, JSON.stringify(localData));
@@ -128,11 +133,10 @@ function saveSettings() {
 const capitalize = s => s[0].toUpperCase()+s.slice(1);
 
 function getType(feature) {
-  let prefixes = {'relic': `{area}_Relic`, 'checkpoint': 'Checkpoint', 'secret': 'Secret', 'droid': 'DroidLocation'};
-  for (const[k,template] of Object.entries(prefixes)) {
-    if (feature.properties.name.startsWith(template.replace('{area}', capitalize(feature.properties.area)))) {
-      return k;
-    }
+  let prefixes = {'relic': `{area}_Relic`, 'checkpoint': 'Checkpoint', 'secret': 'Secret', 'droid': '^Boss|RollerDroid|PossibleEnemy', 'fruit': '^GoobyFruit'};
+  for (const[k,v] of Object.entries(prefixes)) {
+    let regex = v.replace('{area}', capitalize(feature.properties.area));
+    if (feature.properties.name.match(new RegExp(regex, "i"))) return k;
   }
   return 'other';
 }
@@ -223,8 +227,6 @@ function loadMarkers(data, mapId) {
   }
 
   const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: L.divIcon({className: getType(feature), iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
-
-  let markerNames = {'relic':'Relics', 'checkpoint': 'Checkpoints', 'secret': 'Secrets', 'droid': 'Droid', 'other': 'Other'};
 
   let layers = {};
   for (const [type, name] of Object.entries(markerNames)) {
