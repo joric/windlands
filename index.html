@@ -17,7 +17,6 @@
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.8.0/dist/leaflet.min.css">
 
-
 <script src="https://cdn.jsdelivr.net/npm/leaflet-edgebuffer@1.0.7/src/leaflet.edgebuffer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tilelayer-canvas@1.1.5/index.min.js"></script>
 
@@ -30,8 +29,8 @@
 <script src="https://cdn.jsdelivr.net/npm/leaflet-toolbar@0.4.0-alpha.2/dist/leaflet.toolbar.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-toolbar@0.4.0-alpha.2/dist/leaflet.toolbar.min.css">
 
-<script src="https://cdn.jsdelivr.net/npm/leaflet-mouse-position@1.2.0/src/L.Control.MousePosition.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-mouse-position@1.2.0/src/L.Control.MousePosition.min.css">
+<script src="https://cdn.jsdelivr.net/npm/leaflet-mouse-position@1.2.0/src/L.Control.MousePosition.min.js"></script>
 
 <style>
 
@@ -189,7 +188,11 @@ function loadMarkers(data, mapId) {
 
   map.addControl(L.control.zoom({ position: 'bottomright' }));
 
-  L.control.mousePosition({lngFirst: true, lngFormatter:lng=>Math.round(lng), latFormatter:lat=>Math.round(lat)}).addTo(map);
+  try {
+  L.control.mousePosition({wrapLng: false, lngFirst: true, lngFormatter:lng=>Math.round(lng), latFormatter:lat=>Math.round(lat)}).addTo(map);
+  } catch(e) {
+    console.log(e);
+  }
 
   let baseLayers = {};
 
@@ -223,7 +226,7 @@ function loadMarkers(data, mapId) {
     if (!layer) continue;
     let marker = customMarker([-feature.geometry.coordinates[2], feature.geometry.coordinates[0]], feature);
     let formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
-    let formatCoords = c => `X: ${-c[2]}<br/>Y: ${c[0]}<br/>Z: ${c[1]}`;
+    let formatCoords = c => `X: ${c[0]}<br/>Y: ${-c[2]}<br/>Z: ${c[1]}`;
     marker.bindPopup(marker => { //return `<pre>${JSON.stringify(marker.options.feature, null, 2)}</pre>`
       return `<p><b>${marker.options.id}</b><p>${formatCoords(marker.options.feature.geometry.coordinates)}<p>`
       + `<input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`
