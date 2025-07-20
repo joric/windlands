@@ -230,7 +230,7 @@ function loadMarkers(data, mapId) {
       + `<input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`
       + `<label for="${marker.options.id}">Found</label>`},
       {offset: L.point(0, -35)})
-    .bindTooltip(marker => `${marker.options.id}<br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`)
+    .bindTooltip(marker => `<b>${marker.options.id}</b><br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`)
     .addTo(layer)
   }
 
