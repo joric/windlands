@@ -181,6 +181,7 @@ function loadMarkers(data, mapId) {
     center: center, // mandatory
     maxBounds: L.latLngBounds(bounds).pad(0.5), // elastic-y bounds, nice to have
     zoomControl: false,
+    attributionControl: false,
   });
 
   map.addControl(L.control.zoom({ position: 'bottomright' }));
@@ -276,7 +277,8 @@ function loadMarkers(data, mapId) {
         this.disable();
       });
     },
-    enable: function() {
+    enable: function(e) {
+      if (e) L.DomEvent.preventDefault(e);
       if (Date.now() - this.disableTime > 100) {
         L.Toolbar2.Action.prototype.enable.call(this);
       }
@@ -286,7 +288,7 @@ function loadMarkers(data, mapId) {
         this.disableTime = Date.now();
       }
       L.Toolbar2.Action.prototype.disable.call(this);
-    },
+    }
   });
 
   let ImmediateSubAction = L.Toolbar2.Action.extend({
@@ -319,23 +321,23 @@ function loadMarkers(data, mapId) {
         subToolbar: new L.Toolbar2({
           actions: [...actions, cancelAction],
         })
-      },
+      }
     });
   }
 
   function subAction(html, callback, tooltip) {
     return ImmediateSubAction.extend({
       options: {
-          toolbarIcon: {
-              html: html,
-              tooltip: tooltip||html,
-          }
+        toolbarIcon: {
+          html: html,
+          tooltip: tooltip||html,
+        }
       },
       addHooks: function () {
-          if (typeof callback === 'function') {
-              callback();
-          }
-          ImmediateSubAction.prototype.addHooks.call(this);
+        if (typeof callback === 'function') {
+          callback();
+        }
+        ImmediateSubAction.prototype.addHooks.call(this);
       }
     });
   }
