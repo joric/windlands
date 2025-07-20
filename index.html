@@ -223,7 +223,9 @@ function loadMarkers(data, mapId) {
     if (!layer) continue;
     let marker = customMarker([-feature.geometry.coordinates[2], feature.geometry.coordinates[0]], feature);
     let formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
-    marker.bindPopup(marker => { return `<pre>${JSON.stringify(marker.options.feature, null, 2)}</pre>`
+    let formatCoords = c => `X: ${-c[2]}<br/>Y: ${c[0]}<br/>Z: ${c[1]}`;
+    marker.bindPopup(marker => { //return `<pre>${JSON.stringify(marker.options.feature, null, 2)}</pre>`
+      return `<p><b>${marker.options.id}</b><p>${formatCoords(marker.options.feature.geometry.coordinates)}<p>`
       + `<input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`
       + `<label for="${marker.options.id}">Found</label>`},
       {offset: L.point(0, -35)})
