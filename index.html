@@ -355,7 +355,7 @@ function loadMarkers(data, mapId) {
     position: 'bottomleft',
     actions: [
       action('Share', '&#x1F517;',[
-        subAction('Copy Map View URL', ()=>{copyToClipboard(getViewURL()); alert('Map View URL copied to clipboard.');}),
+        subAction('Copy Map View URL', ()=>copyToClipboard(getViewURL())),
       ]),
       action('Local Data', '&#x1F4C1;',[
         subAction('Load Settings', loadLocalData),
