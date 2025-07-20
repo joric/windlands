@@ -14,8 +14,9 @@
 <meta property="og:title" content="Joric's Windlands" />
 <meta property="og:description" content="Windlands 2 Interactive Map" />
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.8.0/dist/leaflet.min.css">
+
 
 <script src="https://cdn.jsdelivr.net/npm/leaflet-edgebuffer@1.0.7/src/leaflet.edgebuffer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tilelayer-canvas@1.1.5/index.min.js"></script>
@@ -181,7 +182,6 @@ function loadMarkers(data, mapId) {
     center: center, // mandatory
     maxBounds: L.latLngBounds(bounds).pad(0.5), // elastic-y bounds, nice to have
     zoomControl: false,
-    attributionControl: false,
   });
 
   map.addControl(L.control.zoom({ position: 'bottomright' }));
@@ -346,7 +346,7 @@ function loadMarkers(data, mapId) {
     position: 'bottomleft',
     actions: [
       action('Share', '&#x1F517;',[
-        subAction('Copy Map View URL', ()=>copyToClipboard(getViewURL())),
+        subAction('Copy Map View URL', ()=>{copyToClipboard(getViewURL()); alert('Map View URL copied to clipboard.');}),
         subAction('Open Project Homepage', ()=>window.open('https://github.com/joric/windlands/', '_blank')),
       ]),
       action('Local Data', '&#x1F4C1;',[
