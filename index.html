@@ -224,7 +224,7 @@ function loadMarkers(data, mapId) {
     if (!layer) continue;
     let marker = customMarker([-feature.geometry.coordinates[2], feature.geometry.coordinates[0]], feature);
     let formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
-    let formatCoords = c => `x: ${c[0]} y: ${-c[2]} z: ${c[1]}`;
+    let formatCoords = c => `x: ${c[0]}, y: ${-c[2]}, z: ${c[1]}`;
     marker.bindPopup(marker => { //return `<pre>${JSON.stringify(marker.options.feature, null, 2)}</pre>`
       return `<p><b>${marker.options.id}</b>`
         + `<br/>${marker.options.feature.properties.type}`
