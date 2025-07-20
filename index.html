@@ -380,9 +380,6 @@ function loadLocalData() {
   const input = document.createElement('input');
   input.type = 'file';
   input.hidden = true;
-  input.id = 'file';
-
-  document.body.appendChild(input);
   input.onchange = function(e) {
     var file = input.files[0];
     if (file) {
@@ -403,17 +400,16 @@ function loadLocalData() {
         alert('error reading file');
       }
     }
-    input.remove();
   }
-  document.querySelector('#file').value = null;
-  document.querySelector('#file').accept = '.json';
-  document.querySelector('#file').click();
+  input.value = null;
+  input.accept = '.json';
+  input.click();
 }
 
 function saveLocalData() {
   let data = localStorage.getItem(localDataName);
   if (window.showSaveFilePicker) {
-    window.showSaveFilePicker({suggestedName: localDataName+'.json'}).then(f=>f.createWritable()).then(f=>f.write(data).then(()=>f.close()));
+    window.showSaveFilePicker({suggestedName: localDataName+'.json'}).then(f=>f.createWritable()).then(f=>f.write(data).then(()=>f.close())).catch(e=>{});
   } else {
     let filename = localDataName+'.json';
     let blob = new Blob([data], {type: "text/json"});
