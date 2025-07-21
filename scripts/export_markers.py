@@ -9,6 +9,8 @@ max_level = 2
 def add_children(p, level=0):
     if 'children' not in p:
         return
+    if any(c['name']=='PossibleEnemyPositions' for c in p['children']): level = 0
+
     if level==max_level:
         return
     for c in p['children']:

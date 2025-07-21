@@ -133,7 +133,7 @@ function saveSettings() {
 const capitalize = s => s[0].toUpperCase()+s.slice(1);
 
 function getType(feature) {
-  let prefixes = {'relic': `{area}_Relic`, 'checkpoint': 'Checkpoint', 'secret': 'Secret', 'droid': '^Boss|Droid|RollerDroid|PossibleEnemy', 'fruit': '^GoobyFruit'};
+  let prefixes = {'relic': `{area}_Relic`, 'checkpoint': 'Checkpoint', 'secret': 'Secret', 'droid': '^Boss|PossibleEnemy', 'fruit': '^GoobyFruit'};
   for (const[k,v] of Object.entries(prefixes)) {
     let regex = v.replace('{area}', capitalize(feature.properties.area));
     if (feature.properties.name.match(new RegExp(regex, "i"))) return k;
