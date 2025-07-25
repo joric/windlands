@@ -6,5 +6,6 @@
   "enemy": {"class": "fa fa-person", "bg": "red"},
   "target": {"class": "fa fa-location-crosshairs", "bg": "tomato"},
   "fruit": {"class": "fa fa-seedling", "bg": "purple"},
+  "gem": {"class": "fa fa-gem", "bg": "darkorange"},
   "misc": {"class": "fa fa-circle-question", "bg": "grey"}
 }
