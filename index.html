@@ -137,7 +137,11 @@ function getType(feature) {
   return 'misc';
 }
 
-let popupCallback = marker => {
+let formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
+let formatCoords = c => `${c[0]}, ${-c[2]}, ${c[1]}`;
+let clampCoords = c => c.map(v=>v.toFixed(2));
+
+let popupCallback = marker =>
  //return `<pre>${JSON.stringify(marker.options.feature, null, 2)}</pre>`
   `<p><b>${marker.options.id}</b>`
   + `<br/>${getType(marker.options.feature)}`
@@ -145,8 +149,7 @@ let popupCallback = marker => {
   + `<br/><small>${marker.options.feature.properties.area}</small>`
   + `<br/><small>${formatCoords(marker.options.feature.geometry.coordinates)}</small>`
   + `<p><input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`
-  + `<label for="${marker.options.id}">Found</label>`
-};
+  + `<label for="${marker.options.id}">Found</label>`;
 
 const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: L.divIcon({className: getType(feature), iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
 
@@ -164,16 +167,14 @@ function loadMarkersRecursive(items, mapId, layers, level = 0) {
   for (c of items) {
 
     if (c['position']) {
-      let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': c['position']}, 'properties': {'name': c['name'], 'type': c['type'], 'area': mapId}};
+      let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': clampCoords(c['position'])}, 'properties': {'name': c['name'], 'type': c['type'], 'area': mapId}};
       if (feature.properties.area != mapId) continue;
       let type = getType(feature);
       let layer = layers[type];
       if (!layer) continue;
       let marker = customMarker([-feature.geometry.coordinates[2], feature.geometry.coordinates[0]], feature, area);
-      let formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
-      let formatCoords = c => `${c[0]}, ${-c[2]}, ${c[1]}`;
       marker
-      .bindPopup(popupCallback,{offset: L.point(0, -35)})
+      .bindPopup(popupCallback, {offset: L.point(0, -35)})
       .bindTooltip(marker => `<b>${marker.options.id}</b><br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`)
       .addTo(layer)
     }
