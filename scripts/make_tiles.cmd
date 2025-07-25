@@ -1,3 +1,10 @@
-py gentiles.py -t jpg -w 512 jungle_16k.png 0-5 ../tiles/jungle
-py gentiles.py -t jpg -w 512 desert_16k.png 0-5 ../tiles/desert
-py gentiles.py -t jpg -w 512 mountain_16k.png 0-5 ../tiles/mountain
+@echo off
+
+FOR %%i IN (jungle desert mountain) DO (
+	ECHO Processing: %%i
+	python stitch_tiles.py tiles/%%i %%i.png 32768 4096
+	python gentiles.py -t jpg -w 512 %%i.png 0-6 ../tiles/%%i/
+
+)
+
+rem start "" "D:\Projects\github\windlands\trunk\index.html"
