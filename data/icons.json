@@ -1,7 +1,7 @@
 {
   "relic": {"fa": "receipt", "bg": "slategrey"},
-  "checkpoint": {"fa": "star", "bg": "orange"},
-  "secret": {"fa": "star-of-life", "bg": "green"},
+  "checkpoint": {"fa": "flag-checkered", "bg": "orange"},
+  "secret": {"fa": "star", "bg": "green"},
   "person": {"fa": "person", "bg": "cornflowerblue"},
   "target": {"fa": "location-crosshairs", "bg": "red"},
   "fruit": {"fa": "seedling", "bg": "purple"},
