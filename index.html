@@ -296,6 +296,13 @@ function loadMarkers(data, mapId) {
     zoomControl: false,
   });
 
+  if (mapParam.lat && mapParam.lng && mapParam.zoom) {
+    map.setView([mapParam.lat, mapParam.lng], mapParam.zoom);
+    mapParam = {};
+  } else if (settings.center && settings.zoom) {
+    map.setView(settings.center, settings.zoom, { animate: false });
+  }
+
   map.addControl(L.control.zoom({ position: 'bottomright' }));
 
   try {
@@ -332,6 +339,8 @@ function loadMarkers(data, mapId) {
     removeOutsideVisibleBounds: true,
     //zoomToBoundsOnClick: false,
     maxClusterRadius: 16,
+    //animateAddingMarkers: false,
+    //animate: false,
   });
 
   map.addLayer(globalClusterGroup);
@@ -384,13 +393,6 @@ function loadMarkers(data, mapId) {
     settings.zoom = map.getZoom();
     saveSettings();
   });
-
-  if (mapParam.lat && mapParam.lng && mapParam.zoom) {
-    map.setView([mapParam.lat, mapParam.lng], mapParam.zoom);
-    mapParam = {};
-  } else if (settings.center && settings.zoom) {
-    map.setView(settings.center, settings.zoom, { animate: false });
-  }
 
   // add toolbar (see https://github.com/Leaflet/Leaflet.toolbar/issues/63)
   let ImmediateAction = L.Toolbar2.Action.extend({
