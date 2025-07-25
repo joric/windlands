@@ -14,6 +14,8 @@
 <meta property="og:title" content="Joric's Windlands" />
 <meta property="og:description" content="Windlands 2 Interactive Map" />
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.8.0/dist/leaflet.min.css">
 
@@ -85,6 +87,41 @@ html, body, #map { width:100%; height: 100%; margin: 0; padding: 0; background: 
 
 .found { opacity: 50%; }
 
+
+.icon-base i {
+  text-align: center;
+  position: absolute;
+  color: white;
+  width: 64px;
+  font-size: 28px;
+  top: 10px;
+}
+
+.icon-base::before{
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  content: "\f041";
+  text-align: center;
+  position: absolute;
+  width: 64px;
+  font-size: 64px;
+  top: -16px;
+}
+
+.icon-48 i {
+  width: 48px;
+  font-size: 20px;
+  top: 4px;
+}
+
+.icon-48::before {
+  width: 48px;
+  font-size: 48px;
+  top: -16px;
+  text-shadow: 0 0 1px black;
+}
+
+
 </style>
 
 <div id="map"></div>
@@ -122,16 +159,37 @@ let searchControl = null;
 let mapParam = {};
 let markerNames = {'relic':'Relics', 'checkpoint': 'Checkpoints', 'secret': 'Secrets', 'droid': 'Droid', 'fruit': 'Fruits', 'misc': 'misc'};
 
+let types = {};
+let icons = {};
+
 function saveSettings() {
   localStorage.setItem(localDataName, JSON.stringify(localData));
 }
 
 const capitalize = s => s[0].toUpperCase()+s.slice(1);
 
+function getIconHTML(options, size=48) {
+  let bg = options.bg || 'dimgrey';
+  let fg = options.fg || 'white';
+  let html = options.html || `<i class="fa fa-${options.fa}" style="color:${fg}"></i>`;
+  return `<span class="icon-base icon-${size}" style="color:${bg}">${html}</span>`;
+}
+
+let baseIcon = (options) => {
+  let size = 48;
+  return L.divIcon({
+    className: 'divIcon',
+    html: getIconHTML(options, size),
+    iconSize:     [size, size], // size of the icon
+    iconAnchor:   [size/2, size], // point of the icon which will correspond to marker's location
+    popupAnchor:  [0, -size*1.1], // point from which the popup should open relative to the iconAnchor
+  });
+};
+
 function getType(feature) {
-  let prefixes = {'relic': `{area}_Relic`, 'checkpoint': 'Checkpoint', 'secret': 'Secret', 'droid': '^Boss|PossibleEnemy', 'fruit': '^GoobyFruit'};
-  for (const[k,v] of Object.entries(prefixes)) {
-    let regex = v.replace('{area}', capitalize(feature.properties.area));
+  for (const[k,v] of Object.entries(types)) {
+    if (!v['match']) continue;
+    let regex = v['match'].replace('{area}', capitalize(feature.properties.area));
     if (feature.properties.name.match(new RegExp(regex, "i"))) return k;
   }
   return 'misc';
@@ -151,7 +209,8 @@ let popupCallback = marker =>
   + `<p><input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`
   + `<label for="${marker.options.id}">Found</label>`;
 
-const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: L.divIcon({className: getType(feature), iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
+//const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: L.divIcon({className: getType(feature), iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
+const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: baseIcon(icons[getType(feature)])});
 
 function loadMarkersRecursive(items, mapId, layers, level = 0) {
   if (!items) return;
@@ -174,7 +233,7 @@ function loadMarkersRecursive(items, mapId, layers, level = 0) {
       if (!layer) continue;
       let marker = customMarker([-feature.geometry.coordinates[2], feature.geometry.coordinates[0]], feature, area);
       marker
-      .bindPopup(popupCallback, {offset: L.point(0, -35)})
+      .bindPopup(popupCallback, {})
       .bindTooltip(marker => `<b>${marker.options.id}</b><br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`)
       .addTo(layer)
     }
@@ -509,6 +568,7 @@ function resetLocalData() {
 }
 
 window.onload = function() {
+
   if (location.hash.length>1) {
     for (const s of location.hash.slice(1).split('&')) {
       let [k,v] = s.split('=');
@@ -538,7 +598,17 @@ window.onload = function() {
   });
 
   localData.mapId = localData.mapId || Object.keys(maps)[0];
-  loadMap(localData.mapId);
+
+  let promises = [
+    'data/types.json',
+    'data/icons.json',
+  ].map(url=>fetch(url).then(r=>r.json()));
+
+  Promise.all(promises).then(data => {
+    [types, icons] = data;
+    loadMap(localData.mapId);
+  });
+
 }
 
 </script>

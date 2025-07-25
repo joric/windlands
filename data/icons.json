@@ -1,0 +1,8 @@
+{
+  "relic": {"fa": "receipt", "bg": "cornflowerblue"},
+  "checkpoint": {"fa": "star", "bg": "orange"},
+  "secret": {"fa": "star-of-life", "bg": "green"},
+  "droid": {"fa": "robot", "bg": "red"},
+  "fruit": {"fa": "seedling", "bg": "purple"},
+  "misc": {"fa": "circle-question", "bg": "grey"}
+}
