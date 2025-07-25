@@ -2,7 +2,7 @@
   "relic": { "match": "^{area}_Relic", "icon": "relic", "title": "Relic", "category": "Collectibles" },
   "checkpoint" : { "match" : "^Checkpoint", "icon": "checkpoint"},
   "secret": { "match": "^Secret", "icon": "secret" },
-  "droid": { "match": "^Boss|PossibleEnemy", "icon": "droid"},
+  "droid": { "match": "^Colosseum|^Boss|^PossibleEnemy", "icon": "droid"},
   "fruit": { "match": "^GoobyFruit", "icon": "fruit"},
   "misc": {"icon": "misc" }
 }
