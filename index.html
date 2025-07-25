@@ -137,6 +137,53 @@ function getType(feature) {
   return 'misc';
 }
 
+let popupCallback = marker => {
+ //return `<pre>${JSON.stringify(marker.options.feature, null, 2)}</pre>`
+  `<p><b>${marker.options.id}</b>`
+  + `<br/>${getType(marker.options.feature)}`
+  + `<br/><small>${marker.options.feature.properties.type}</small>`
+  + `<br/><small>${marker.options.feature.properties.area}</small>`
+  + `<br/><small>${formatCoords(marker.options.feature.geometry.coordinates)}</small>`
+  + `<p><input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`
+  + `<label for="${marker.options.id}">Found</label>`
+};
+
+const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: L.divIcon({className: getType(feature), iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
+
+function loadMarkersRecursive(items, mapId, layers, level = 0) {
+  if (!items) return;
+
+  for (c of items) {
+    if (c['name']=='PossibleEnemyPositions') { level = 0; break; }
+  }
+
+  if (level>=3) return;
+
+  let area = mapId;
+
+  for (c of items) {
+
+    if (c['position']) {
+      let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': c['position']}, 'properties': {'name': c['name'], 'type': c['type'], 'area': mapId}};
+      if (feature.properties.area != mapId) continue;
+      let type = getType(feature);
+      let layer = layers[type];
+      if (!layer) continue;
+      let marker = customMarker([-feature.geometry.coordinates[2], feature.geometry.coordinates[0]], feature, area);
+      let formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
+      let formatCoords = c => `${c[0]}, ${-c[2]}, ${c[1]}`;
+      marker
+      .bindPopup(popupCallback,{offset: L.point(0, -35)})
+      .bindTooltip(marker => `<b>${marker.options.id}</b><br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`)
+      .addTo(layer)
+    }
+
+
+    loadMarkersRecursive(c['children'], mapId, layers, level + 1);
+
+  }
+}
+
 function loadMarkers(data, mapId) {
 
   for (id in maps) {
@@ -222,34 +269,12 @@ function loadMarkers(data, mapId) {
     }
   }
 
-  const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: L.divIcon({className: getType(feature), iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
-
   let layers = {};
   for (const [type, name] of Object.entries(markerNames)) {
     layers[type] = L.layerGroup();
   }
 
-  for (feature of data.features) {
-    if (feature.properties.area != mapId) continue;
-    let type = getType(feature);
-    let layer = layers[type];
-    if (!layer) continue;
-    let marker = customMarker([-feature.geometry.coordinates[2], feature.geometry.coordinates[0]], feature, area);
-    let formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
-    let formatCoords = c => `${c[0]}, ${-c[2]}, ${c[1]}`;
-    marker.bindPopup(marker => { //return `<pre>${JSON.stringify(marker.options.feature, null, 2)}</pre>`
-      return `<p><b>${marker.options.id}</b>`
-        + `<br/>${getType(marker.options.feature)}`
-        + `<br/><small>${marker.options.feature.properties.type}</small>`
-        + `<br/><small>${marker.options.feature.properties.area}</small>`
-        + `<br/><small>${formatCoords(marker.options.feature.geometry.coordinates)}</small>`
-        + `<p><input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`
-        + `<label for="${marker.options.id}">Found</label>`
-      },
-      {offset: L.point(0, -35)})
-    .bindTooltip(marker => `<b>${marker.options.id}</b><br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`)
-    .addTo(layer)
-  }
+  loadMarkersRecursive(data.items, mapId, layers);
 
   searchControl = new L.Control.Search({propertyName: 'id', layer: L.featureGroup(Object.values(layers)), hideMarkerOnCollapse: true, initial: false, position: 'topleft'})
   map.addControl(searchControl);
@@ -419,7 +444,7 @@ function markItems() {
 }
 
 function loadMap(mapId) {
-  fetch('markers.json').then(r=>r.json()).then(data=>{
+  fetch(`data/${mapId}.json`).then(r=>r.json()).then(data=>{
     loadMarkers(data, mapId);
     markItems();
   })
