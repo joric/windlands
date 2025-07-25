@@ -316,7 +316,7 @@ function loadMarkers(data, mapId) {
     map.setView([mapParam.lat, mapParam.lng], mapParam.zoom);
     mapParam = {};
   } else if (settings.center && settings.zoom) {
-    map.setView(settings.center, settings.zoom);
+    map.setView(settings.center, settings.zoom, { animate: false });
   }
 
   // add toolbar (see https://github.com/Leaflet/Leaflet.toolbar/issues/63)
