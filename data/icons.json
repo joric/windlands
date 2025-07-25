@@ -1,9 +1,9 @@
 {
-  "relic": {"fa": "receipt", "bg": "slategrey"},
-  "checkpoint": {"fa": "flag-checkered", "bg": "orange"},
-  "secret": {"fa": "star", "bg": "green"},
-  "person": {"fa": "person", "bg": "cornflowerblue"},
-  "target": {"fa": "location-crosshairs", "bg": "red"},
-  "fruit": {"fa": "seedling", "bg": "purple"},
-  "misc": {"fa": "circle-question", "bg": "grey"}
+  "relic": {"class": "fa fa-receipt", "bg": "slategrey"},
+  "checkpoint": {"class": "fa fa-flag-checkered", "bg": "orange"},
+  "secret": {"class": "fa fa-star", "bg": "green"},
+  "person": {"class": "fa fa-person", "bg": "cornflowerblue"},
+  "target": {"class": "fa fa-location-crosshairs", "bg": "red"},
+  "fruit": {"class": "fa fa-seedling", "bg": "purple"},
+  "misc": {"class": "fa fa-circle-question", "bg": "grey"}
 }
