@@ -4,7 +4,7 @@
   "secret": {"class": "fa fa-star", "bg": "green"},
   "person": {"class": "fa fa-person", "bg": "cornflowerblue"},
   "enemy": {"class": "fa fa-person", "bg": "red"},
-  "target": {"class": "fa fa-location-crosshairs", "bg": "red"},
+  "target": {"class": "fa fa-location-crosshairs", "bg": "tomato"},
   "fruit": {"class": "fa fa-seedling", "bg": "purple"},
   "misc": {"class": "fa fa-circle-question", "bg": "grey"}
 }

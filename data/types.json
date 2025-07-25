@@ -3,8 +3,8 @@
   "secret": { "match": "^Secret", "icon": "secret" },
   "checkpoint" : { "match" : "^Checkpoint", "icon": "checkpoint"},
   "character": { "match": "^(Solyatta|Maako|Tohir|Rah|Taka_Character_001|LizardGuard|Ra|Saralla|Techsmith|Boro|Trigger-Techsmith)(?: \\(\\d+\\))?$", "icon": "person" },
-  "boss": { "match": "^(DropShip|Spiderbot|RocketSpiderBot|TenticleBoss\\d|WormBoss\\d|Baldakka)$", "icon": "enemy"},
-  "droid": { "match": "^(Tohir-Rollerdroid|RollerDroid\\d|PossibleEnemyPosition|PossibleRescuePosition|DroidLocation)", "icon": "target"},
+  "boss": { "match": "^(DropShip|Spiderbot|RocketSpiderBot|TenticleBoss|WormBoss|RollerDroid|FlyingDroid|BloodKnight|FinalBossArena|Baldakka)(?:\\d+)?$", "icon": "enemy"},
+  "location": { "match": "^(Tohir-Rollerdroid|RollerDroid\\d|PossibleEnemyPosition|PossibleRescuePosition|DroidLocation)", "icon": "target"},
   "fruit": { "match": "^(GoobyFruit)(?: \\(\\d\\))?$", "icon": "fruit"},
   "misc": {"icon": "misc" }
 }
