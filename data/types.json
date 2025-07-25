@@ -3,7 +3,7 @@
   "checkpoint" : { "match" : "^Checkpoint", "icon": "checkpoint"},
   "secret": { "match": "^Secret", "icon": "secret" },
   "character": { "match": "^(Solyatta|Maako|Tohir|Rah|Baldakka|Taka_Character_001)$", "icon": "person" },
-  "droid": { "match": "^(Colosseum|Spiderbot|Tohir-Rollerdroid|RocketSpiderBot)$|^PossibleEnemyPosition", "icon": "droid"},
+  "enemy": { "match": "^(Colosseum|Spiderbot|Tohir-Rollerdroid|RocketSpiderBot)$|^PossibleEnemyPosition", "icon": "target"},
   "fruit": { "match": "^(GoobyFruit|GoobyFruit \\(\\d\\))$", "icon": "fruit"},
   "misc": {"icon": "misc" }
 }

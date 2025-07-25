@@ -150,6 +150,7 @@ function saveSettings() {
 const capitalize = s => s[0].toUpperCase()+s.slice(1);
 
 function getIconHTML(options, size=48) {
+  options = options || {fa:'circle-question', bg:'dimgrey'};
   let bg = options.bg || 'dimgrey';
   let fg = options.fg || 'white';
   let html = options.html || `<i class="fa fa-${options.fa}" style="color:${fg}"></i>`;
@@ -191,7 +192,7 @@ let popupCallback = marker =>
   + `<label for="${marker.options.id}">Found</label>`;
 
 //const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: L.divIcon({className: getType(feature), iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
-const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: baseIcon(icons[getType(feature)])});
+const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: baseIcon(icons[ types[ getType(feature) ].icon ])});
 
 function loadMarkersRecursive(items, mapId, layers, level = 0) {
   if (!items) return;
