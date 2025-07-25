@@ -2,7 +2,7 @@
   "relic": { "match": "^{area}_Relic", "icon": "relic", "title": "Relic", "category": "Collectibles" },
   "checkpoint" : { "match" : "^Checkpoint", "icon": "checkpoint"},
   "secret": { "match": "^Secret", "icon": "secret" },
-  "character": { "match": "^(Solyatta|Maako|Tohir|Rah|Sarala|SaralaAssistant|Baldakka|Taka_Character_001)$", "icon": "person" },
+  "character": { "match": "^(Solyatta|Maako|Tohir|Rah|Baldakka|Taka_Character_001)$", "icon": "person" },
   "droid": { "match": "^(Colosseum|Spiderbot|Tohir-Rollerdroid|RocketSpiderBot)$|^PossibleEnemyPosition", "icon": "droid"},
   "fruit": { "match": "^(GoobyFruit|GoobyFruit \\(\\d\\))$", "icon": "fruit"},
   "misc": {"icon": "misc" }
