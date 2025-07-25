@@ -34,6 +34,11 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-mouse-position@1.2.0/src/L.Control.MousePosition.min.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet-mouse-position@1.2.0/src/L.Control.MousePosition.min.js"></script>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet.featuregroup.subgroup@1.0.2/dist/leaflet.featuregroup.subgroup.js"></script>
+
 <style>
 
 html, body, #map { width:100%; height: 100%; margin: 0; padding: 0; background: black; }
@@ -64,29 +69,6 @@ html, body, #map { width:100%; height: 100%; margin: 0; padding: 0; background: 
   right: 0;
   z-index: 1000;
 }
-
-.checkpoint img {
-  filter: hue-rotate(180deg) brightness(1.5);
-}
-
-.secret img {
-  filter: hue-rotate(-90deg);
-}
-
-.droid img {
-  filter: hue-rotate(150deg);
-}
-
-.fruit img {
-  filter: hue-rotate(60deg);
-}
-
-.misc img {
-  filter: saturate(0);
-}
-
-.found { opacity: 50%; }
-
 
 .icon-base i {
   text-align: center;
@@ -157,7 +139,6 @@ let localData = JSON.parse(localStorage.getItem(localDataName)) || {};
 let settings = null;
 let searchControl = null;
 let mapParam = {};
-let markerNames = {'relic':'Relics', 'checkpoint': 'Checkpoints', 'secret': 'Secrets', 'droid': 'Droid', 'fruit': 'Fruits', 'misc': 'misc'};
 
 let types = {};
 let icons = {};
@@ -219,7 +200,7 @@ function loadMarkersRecursive(items, mapId, layers, level = 0) {
     if (c['name']=='PossibleEnemyPositions') { level = 0; break; }
   }
 
-  if (level>=3) return;
+  //if (level>=3) return;
 
   let area = mapId;
 
@@ -317,7 +298,8 @@ function loadMarkers(data, mapId) {
     let tilesLayer = L.tileLayer.canvas(config.tiles, {
       tileSize: tileSize,
       maxNativeZoom: config.zoomlevels,
-      maxZoom: config.zoomlevels,
+      //maxZoom: config.zoomlevels,
+      maxZoom: 19,
       edgeBufferTiles: 2,
       bounds: bounds, // mandatory to avoid 404 errors
       attribution: '<a href="https://github.com/joric/windlands/" target=_blank>Joric&apos;s Windlands Maps</a>',
@@ -329,9 +311,28 @@ function loadMarkers(data, mapId) {
     }
   }
 
+
+  const globalClusterGroup = L.markerClusterGroup({
+    chunkedLoading: true,
+    //disableClusteringAtZoom: config.zoomlevels,
+    showCoverageOnHover: false,
+    spiderfyOnMaxZoom: true,
+    removeOutsideVisibleBounds: true,
+    //zoomToBoundsOnClick: false,
+    maxClusterRadius: 64,
+  });
+
+  map.addLayer(globalClusterGroup);
+
+  globalClusterGroup.on('clustermouseover', function(a) {
+    if (a.layer && ( a.layer._childCount < 10)) a.layer.spiderfy();
+  });
+
   let layers = {};
-  for (const [type, name] of Object.entries(markerNames)) {
-    layers[type] = L.layerGroup();
+  for (const type of Object.keys(types)) {
+    //layers[type] = L.layerGroup();
+    layers[type] = L.featureGroup.subGroup(globalClusterGroup);
+    //globalClusterGroup.addLayer(layers[type]);
   }
 
   loadMarkersRecursive(data.items, mapId, layers);
