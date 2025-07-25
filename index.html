@@ -108,6 +108,12 @@ html, body, #map { width:100%; height: 100%; margin: 0; padding: 0; background: 
 }
 
 
+.leaflet-popup-content {
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
 </style>
 
 <div id="map"></div>
@@ -189,16 +195,16 @@ let popupCallback = marker =>
  //return `<pre>${JSON.stringify(marker.options.feature, null, 2)}</pre>`
   `<p><b>${marker.options.id}</b>`
   + `<br/>${getType(marker.options.feature)}`
-  + `<br/><small>${marker.options.feature.properties.type}</small>`
-  + `<br/><small>${marker.options.feature.properties.area}</small>`
-  + `<br/><small>${formatCoords(marker.options.feature.geometry.coordinates)}</small>`
+  + `<br/><small>Type: ${marker.options.feature.properties.type}</small>`
+  + `<br/><small>Path: ${marker.options.feature.properties.path}</small>`
+  + `<br/><small>Position: ${formatCoords(marker.options.feature.geometry.coordinates)}</small>`
   + `<p><input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`
   + `<label for="${marker.options.id}">Found</label>`;
 
 //const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: L.divIcon({className: getType(feature), iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
 const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: baseIcon(icons[ types[ getType(feature) ].icon ])});
 
-function loadMarkersRecursive(items, mapId, layers, level = 0) {
+function loadMarkersRecursive(items, mapId, layers, path='', level = 0) {
   if (!items) return;
 
   for (c of items) {
@@ -212,7 +218,7 @@ function loadMarkersRecursive(items, mapId, layers, level = 0) {
   for (o of items) {
     let p = o['position'];
     if (p && p.length==3 && p.every(x=>x!=0)) {
-      let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': clampCoords(p)}, 'properties': {'name': o['name'], 'type': o['type'], 'area': mapId}};
+      let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': clampCoords(p)}, 'properties': {'name': o['name'], 'type': o['type'], 'area': mapId, 'path': path}};
       if (feature.properties.area != mapId) continue;
       let type = getType(feature);
       let layer = layers[type];
@@ -224,7 +230,7 @@ function loadMarkersRecursive(items, mapId, layers, level = 0) {
       .addTo(layer)
     }
 
-    loadMarkersRecursive(o['children'], mapId, layers, level + 1);
+    loadMarkersRecursive(o['children'], mapId, layers, path + '/' + o['name'], level + 1);
 
   }
 }
