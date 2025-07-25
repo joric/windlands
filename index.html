@@ -231,7 +231,7 @@ function loadMarkers(data, mapId) {
   for (id in maps) {
     localData[id] = localData[id] || {};
     localData[id].markedItems = localData[id].markedItems || {};
-    localData[id].activeLayers = localData[id].activeLayers || {'relic':true, 'checkpoint':true, 'secret': true };
+    localData[id].activeLayers = localData[id].activeLayers || {'relic':true };
   }
 
   localData.mapId = mapId;
@@ -320,7 +320,7 @@ function loadMarkers(data, mapId) {
     spiderfyOnMaxZoom: true,
     removeOutsideVisibleBounds: true,
     //zoomToBoundsOnClick: false,
-    maxClusterRadius: 64,
+    maxClusterRadius: 16,
   });
 
   map.addLayer(globalClusterGroup);
