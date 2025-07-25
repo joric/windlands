@@ -4,7 +4,7 @@
   "checkpoint" : { "match" : "^Checkpoint", "icon": "checkpoint"},
   "character": { "match": "^(Solyatta|Maako|Tohir|Rah|Taka_Character_001|LizardGuard|Ra|Saralla|Techsmith|Boro)(?: \\(\\d+\\))?$", "icon": "person" },
   "boss": { "match": "^(DropShip|Spiderbot|RocketSpiderBot|TenticleBoss\\d|Baldakka)$", "icon": "enemy"},
-  "droid": { "match": "^(Tohir-Rollerdroid|RollerDroid\\d|PossibleEnemyPosition|DroidLocation)", "icon": "target"},
+  "droid": { "match": "^(Tohir-Rollerdroid|RollerDroid\\d|PossibleEnemyPosition|PossibleRescuePosition|DroidLocation)", "icon": "target"},
   "fruit": { "match": "^(GoobyFruit)(?: \\(\\d\\))?$", "icon": "fruit"},
   "misc": {"icon": "misc" }
 }
