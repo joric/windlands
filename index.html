@@ -209,19 +209,19 @@ const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id
 
 function loadMarkersRecursive(items, mapId, layers, prefix='', level = 0) {
   if (!items) return;
-  let area = mapId;
 
   for (o of items) {
     let path = prefix + (prefix ? '/' : '') + o['name'];
 
     let p = o['position'];
     if (p && p.length==3 && p.every(x=>x!=0)) {
-      let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': clampCoords(p)}, 'properties': {'name': o['name'], 'type': o['type'], 'area': mapId, 'path': path}};
+      let c = clampCoords(p);
+      let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': c}, 'properties': {'name': o['name'], 'type': o['type'], 'area': mapId, 'path': path}};
       if (feature.properties.area != mapId) continue;
       let type = getType(feature);
       let layer = layers[type];
       if (!layer) continue;
-      let marker = customMarker([-feature.geometry.coordinates[2], feature.geometry.coordinates[0]], feature, area);
+      let marker = customMarker([-c[2], c[0]], feature, mapId);
       marker
       .bindPopup(popupCallback, {})
       .bindTooltip(tooltipCallback)
