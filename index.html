@@ -358,7 +358,29 @@ function loadMarkers(data, mapId) {
 
   loadMarkersRecursive(data.items, mapId, layers);
 
-  searchControl = new L.Control.Search({propertyName: 'id', layer: L.featureGroup(Object.values(layers)), hideMarkerOnCollapse: true, initial: false, position: 'topleft'})
+  searchControl = new L.Control.Search({
+    propertyName: 'id',
+    layer: L.featureGroup(Object.values(layers)),
+    hideMarkerOnCollapse: true,
+    initial: false,
+    position: 'topleft',
+
+    filterData: function(text, records) {
+      var filteredRecords = {};
+      for (var key in records) {
+        var layer = records[key].layer;
+        var parentGroup = layer._eventParents ? Object.values(layer._eventParents)[0] : null;
+        if (parentGroup && map.hasLayer(parentGroup)) {
+          var searchText = layer.options.id || '';
+          if (searchText.toLowerCase().includes(text.toLowerCase())) {
+            filteredRecords[key] = records[key];
+          }
+        }
+      }
+      return filteredRecords;
+    },
+
+  })
   map.addControl(searchControl);
 
   L.control.fullscreen({ position: 'bottomright', forceSeparateButton: true}).addTo(map);
