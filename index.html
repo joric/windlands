@@ -194,7 +194,7 @@ let clampCoords = c => c.map(v=>v.toFixed(2));
 
 let popupCallback = marker =>
  //return `<pre>${JSON.stringify(marker.options.feature, null, 2)}</pre>`
-  `<p><b>${marker.options.id}</b>`
+  `<p><b>${marker.options.feature.properties.name}</b>`
   + `<br/>${getType(marker.options.feature)}`
   + `<br/><small>Type: ${marker.options.feature.properties.type}</small>`
   + `<br/><small>Path: ${marker.options.feature.properties.path}</small>`
@@ -202,8 +202,10 @@ let popupCallback = marker =>
   + `<p><input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`
   + `<label for="${marker.options.id}">Found</label>`;
 
+let tooltipCallback = marker => `<b>${marker.options.feature.properties.name}</b><br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`
+
 //const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: L.divIcon({className: getType(feature), iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
-const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: baseIcon(icons[ types[ getType(feature) ].icon ])});
+const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.path, icon: baseIcon(icons[ types[ getType(feature) ].icon ])});
 
 function loadMarkersRecursive(items, mapId, layers, prefix='', level = 0) {
   if (!items) return;
@@ -229,7 +231,7 @@ function loadMarkersRecursive(items, mapId, layers, prefix='', level = 0) {
       let marker = customMarker([-feature.geometry.coordinates[2], feature.geometry.coordinates[0]], feature, area);
       marker
       .bindPopup(popupCallback, {})
-      .bindTooltip(marker => `<b>${marker.options.id}</b><br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`)
+      .bindTooltip(tooltipCallback)
       .addTo(layer)
     }
 
