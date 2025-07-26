@@ -115,6 +115,19 @@ html, body, #map { width:100%; height: 100%; margin: 0; padding: 0; background: 
   overflow-wrap: anywhere;
 }
 
+.search-input {
+  max-width: 230px !important;
+}
+
+.search-tip {
+  max-width: 300px !important;
+  direction: rtl;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 </style>
 
 <div id="map"></div>
@@ -345,7 +358,7 @@ function loadMarkers(data, mapId) {
     hideMarkerOnCollapse: true,
     initial: false,
     position: 'topleft',
-    filterData: (text, records) =>  Object.fromEntries(
+    filterData: (text, records) => Object.fromEntries(
       Object.entries(records).filter(([_,r])=>map.hasLayer(r.layer._eventParents?.[Object.keys(r.layer._eventParents)[0]])&&(r.layer.options.id||'').toLowerCase().includes(text.toLowerCase())
     )),
   })

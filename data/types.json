@@ -5,7 +5,7 @@
   "part": {"match": "PossibleCollectionPosition", "icon": "part"},
   "character": { "match": "^(Solyatta|Maako|Tohir|Rah|Taka_Character_001|LizardGuard|Ra|Saralla|Techsmith|Boro|Trigger-Techsmith)(?: \\(\\d+\\))?$", "icon": "person" },
   "boss": { "match": "^(DropShip|Spiderbot|RocketSpiderBot|TenticleBoss|WormBoss|RollerDroid|FlyingDroid|BloodKnight|FinalBossArena|Baldakka)(?:\\d+)?$", "icon": "enemy"},
-  "target": { "match": "^(Tohir-Rollerdroid|RollerDroid\\d|PossibleEnemyPosition(?:_\\d)?|DroidLocation|WeakPoint)(?: \\(\\d\\))?$", "icon": "target"},
+  "target": { "match": "^(Tohir-Rollerdroid|RollerDroid|PossibleEnemyPosition|DroidLocation|WeakPoint)(?:_)?(?:\\d)?(?: \\(\\d\\))?$", "icon": "target"},
   "rescue": { "match": "^PossibleRescuePosition(?: \\(\\d\\))?", "icon": "rescue"},
   "fruit": { "match": "^GoobyFruit(?: \\(\\d\\))?$", "icon": "fruit"},
   "misc": {"icon": "misc" }
