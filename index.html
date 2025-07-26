@@ -188,24 +188,18 @@ function getType(feature) {
   return 'misc';
 }
 
-let formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
-let formatCoords = c => `${c[0]}, ${-c[2]}, ${c[1]}`;
-let clampCoords = c => c.map(v=>v.toFixed(2));
-
-let popupCallback = marker =>
- //return `<pre>${JSON.stringify(marker.options.feature, null, 2)}</pre>`
-  `<p><b>${marker.options.feature.properties.name}</b>`
+const formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
+const formatCoords = c => `${c[0]}, ${-c[2]}, ${c[1]}`;
+const clampCoords = c => c.map(v=>v.toFixed(2));
+const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.path, icon: baseIcon(icons[ types[ getType(feature) ].icon ])});
+const tooltipCallback = marker => `<b>${marker.options.feature.properties.name}</b><br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`
+const popupCallback = marker => `<p><b>${marker.options.feature.properties.name}</b>`
   + `<br/>${getType(marker.options.feature)}`
   + `<br/><small>Type: ${marker.options.feature.properties.type}</small>`
   + `<br/><small>Path: ${marker.options.feature.properties.path}</small>`
   + `<br/><small>Position: ${formatCoords(marker.options.feature.geometry.coordinates)}</small>`
-  + `<p><input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true ? ' checked':''}>`
+  + `<p><input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true?' checked':''}>`
   + `<label for="${marker.options.id}">Found</label>`;
-
-let tooltipCallback = marker => `<b>${marker.options.feature.properties.name}</b><br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`
-
-//const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: L.divIcon({className: getType(feature), iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
-const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.path, icon: baseIcon(icons[ types[ getType(feature) ].icon ])});
 
 function loadMarkersRecursive(items, area, layers, prefix='', level = 0) {
   if (!items) return;
@@ -218,7 +212,7 @@ function loadMarkersRecursive(items, area, layers, prefix='', level = 0) {
       let type = getType(feature);
       let layer = layers[type];
       if (!layer) continue;
-      let marker = customMarker([-c[2], c[0]], feature, area).bindPopup(popupCallback).bindTooltip(tooltipCallback).addTo(layer);
+      let marker = customMarker([-c[2], c[0]], feature, area).bindTooltip(tooltipCallback).bindPopup(popupCallback).addTo(layer);
     }
     loadMarkersRecursive(o['children'], area, layers, path, level + 1);
   }
