@@ -6,6 +6,7 @@
   "person": {"class": "fa fa-person", "bg": "cornflowerblue"},
   "enemy": {"class": "fa fa-person", "bg": "red"},
   "target": {"class": "fa fa-location-crosshairs", "bg": "tomato"},
+  "rescue": {"class": "fa fa-child", "bg": "darkcyan"},
   "fruit": {"class": "fa fa-seedling", "bg": "purple"},
   "misc": {"class": "fa fa-circle-question", "bg": "grey"}
 }
