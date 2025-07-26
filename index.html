@@ -206,11 +206,13 @@ const formatCoords = c => `${c[0]}, ${-c[2]}, ${c[1]}`;
 const clampCoords = c => c.map(v=>v.toFixed(2));
 const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.path, icon: baseIcon(icons[ types[ getType(feature) ].icon ])});
 const tooltipCallback = marker => `<b>${marker.options.feature.properties.name}</b><br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`
+const formatPath = s => s.split('/').map((part, i) => '-'.repeat(i) +'- '+ part).join('<br/>\n');
+
 const popupCallback = marker => `<p><b>${marker.options.feature.properties.name}</b>`
   + `<br/>${getType(marker.options.feature)}`
   + `<br/><small>Type: ${marker.options.feature.properties.type}</small>`
-  + `<br/><small>Path: ${marker.options.feature.properties.path}</small>`
   + `<br/><small>Position: ${formatCoords(marker.options.feature.geometry.coordinates)}</small>`
+  + `<br/><small>${formatPath(marker.options.feature.properties.path)}</small>`
   + `<p><input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true?' checked':''}>`
   + `<label for="${marker.options.id}">Found</label>`;
 
