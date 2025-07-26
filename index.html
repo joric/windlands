@@ -207,7 +207,7 @@ let tooltipCallback = marker => `<b>${marker.options.feature.properties.name}</b
 //const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.name, icon: L.divIcon({className: getType(feature), iconSize: [25, 41], iconAnchor: [12, 41], html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png">`})});
 const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.path, icon: baseIcon(icons[ types[ getType(feature) ].icon ])});
 
-function loadMarkersRecursive(items, mapId, layers, prefix='', level = 0) {
+function loadMarkersRecursive(items, area, layers, prefix='', level = 0) {
   if (!items) return;
 
   for (o of items) {
@@ -216,19 +216,19 @@ function loadMarkersRecursive(items, mapId, layers, prefix='', level = 0) {
     let p = o['position'];
     if (p && p.length==3 && p.every(x=>x!=0)) {
       let c = clampCoords(p);
-      let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': c}, 'properties': {'name': o['name'], 'type': o['type'], 'area': mapId, 'path': path}};
-      if (feature.properties.area != mapId) continue;
+      let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': c}, 'properties': {'name': o['name'], 'type': o['type'], 'area': area, 'path': path}};
+      if (feature.properties.area != area) continue;
       let type = getType(feature);
       let layer = layers[type];
       if (!layer) continue;
-      let marker = customMarker([-c[2], c[0]], feature, mapId);
+      let marker = customMarker([-c[2], c[0]], feature, area);
       marker
       .bindPopup(popupCallback, {})
       .bindTooltip(tooltipCallback)
       .addTo(layer)
     }
 
-    loadMarkersRecursive(o['children'], mapId, layers, path, level + 1);
+    loadMarkersRecursive(o['children'], area, layers, path, level + 1);
 
   }
 }
