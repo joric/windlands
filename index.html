@@ -364,22 +364,9 @@ function loadMarkers(data, mapId) {
     hideMarkerOnCollapse: true,
     initial: false,
     position: 'topleft',
-
-    filterData: function(text, records) {
-      var filteredRecords = {};
-      for (var key in records) {
-        var layer = records[key].layer;
-        var parentGroup = layer._eventParents ? Object.values(layer._eventParents)[0] : null;
-        if (parentGroup && map.hasLayer(parentGroup)) {
-          var searchText = layer.options.id || '';
-          if (searchText.toLowerCase().includes(text.toLowerCase())) {
-            filteredRecords[key] = records[key];
-          }
-        }
-      }
-      return filteredRecords;
-    },
-
+    filterData: (text, records) =>  Object.fromEntries(
+      Object.entries(records).filter(([_,r])=>map.hasLayer(r.layer._eventParents?.[Object.keys(r.layer._eventParents)[0]])&&(r.layer.options.id||'').toLowerCase().includes(text.toLowerCase())
+    )),
   })
   map.addControl(searchControl);
 
