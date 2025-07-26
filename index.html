@@ -218,7 +218,7 @@ function loadMarkersRecursive(items, area, layers, prefix='', level = 0) {
       let type = getType(feature);
       let layer = layers[type];
       if (!layer) continue;
-      let marker = customMarker([-c[2], c[0]], feature, area).bindPopup(popupCallback).bindTooltip(tooltipCallback).addTo(layer)
+      let marker = customMarker([-c[2], c[0]], feature, area).bindPopup(popupCallback).bindTooltip(tooltipCallback).addTo(layer);
     }
     loadMarkersRecursive(o['children'], area, layers, path, level + 1);
   }
