@@ -1,7 +1,7 @@
 {
   "relic": {"class": "fa fa-receipt", "bg": "slategrey"},
-  "checkpoint": {"class": "fa fa-flag-checkered", "bg": "orange"},
-  "secret": {"class": "fa fa-star", "bg": "green"},
+  "checkpoint": {"class": "fa fa-flag-checkered", "bg": "gold"},
+  "secret": {"class": "fa fa-star", "bg": "orange"},
   "part": {"class": "fa fa-gem", "bg": "violet"},
   "person": {"class": "fa fa-person", "bg": "cornflowerblue"},
   "enemy": {"class": "fa fa-person", "bg": "red"},
