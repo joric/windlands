@@ -621,7 +621,7 @@ window.onload = function() {
     }
   });
 
-  localData.mapId = localData.mapId || Object.keys(maps)[0];
+  localData.mapId = mapParam.mapId || localData.mapId || Object.keys(maps)[0];
 
   let promises = [
     'data/types.json',
