@@ -2,7 +2,7 @@
   "relic": {"class": "fa fa-receipt", "bg": "slategrey"},
   "checkpoint": {"class": "fa fa-flag-checkered", "bg": "orange"},
   "secret": {"class": "fa fa-star", "bg": "green"},
-  "part": {"class": "fa fa-gem", "bg": "violet"},
+  "part": {"class": "fa fa-gear", "bg": "violet"},
   "person": {"class": "fa fa-person", "bg": "cornflowerblue"},
   "enemy": {"class": "fa fa-person", "bg": "red"},
   "target": {"class": "fa fa-location-crosshairs", "bg": "tomato"},
