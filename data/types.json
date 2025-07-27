@@ -2,7 +2,7 @@
   "relic": { "match": "^{area}_Relic", "icon": "relic", "title": "Relic", "category": "Collectibles" },
   "secret": { "match": "^Secret", "icon": "secret" },
   "checkpoint" : { "match" : "^Checkpoint", "icon": "checkpoint"},
-  "part": {"match": "PossibleCollectionPosition", "icon": "part"},
+  "part": {"match": "PossibleCollectionPosition|^BombPart$", "icon": "part"},
   "character": { "match": "^(Solyatta|Maako|Tohir|Rah|Taka_Character_001|LizardGuard|Ra|Saralla|Techsmith|Boro|Trigger-Techsmith)(?: \\(\\d+\\))?$", "icon": "person" },
   "boss": { "match": "^(DropShip|Spiderbot|RocketSpiderBot|TenticleBoss|WormBoss|RollerDroid|FlyingDroid|BloodKnight|FinalBossArena|Baldakka)(?:\\d+)?$", "icon": "enemy"},
   "target": { "match": "^(Tohir-Rollerdroid|RollerDroid|PossibleEnemyPosition|DroidLocation|WeakPoint)(?:_)?(?:\\d)?(?: \\(\\d\\))?$", "icon": "target"},
