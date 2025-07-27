@@ -196,7 +196,7 @@ function getType(feature) {
   for (const[k,v] of Object.entries(types)) {
     if (!v['match']) continue;
     let regex = v['match'].replace('{area}', capitalize(feature.properties.area));
-    if (feature.properties.name.match(new RegExp(regex, "i"))) return k;
+    if (feature.properties.path.match(new RegExp(regex, "i"))) return k;
   }
   return 'misc';
 }
