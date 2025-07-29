@@ -219,6 +219,7 @@ const popupCallback = marker => `<p><b>${marker.options.feature.properties.name}
   + `<br/><small>Type: ${marker.options.feature.properties.type}</small>`
   + `<br/><small>Position: ${formatCoords(marker.options.feature.geometry.coordinates)}</small>`
   + `<br/><small>Path: ${marker.options.feature.properties.path}</small>`
+  + `<br/><small>Components: ${marker.options.feature.properties.comp}</small>`
   + `<p><input type=checkbox id="${marker.options.id}" onclick=toggleFound("${marker.options.id}")${settings.markedItems[marker.options.id]==true?' checked':''}>`
   + `<label for="${marker.options.id}">Found</label>`;
 
@@ -229,7 +230,8 @@ function loadMarkersRecursive(items, area, layers, prefix='', level = 0) {
     let p = o['position'];
     if (p && p.length==3 && p.every(x=>x!=0)) {
       let c = clampCoords(p);
-      let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': c}, 'properties': {'name': o['name'], 'type': o['type'], 'area': area, 'path': path}};
+      let comp = (o['components']||[]).join(':');
+      let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': c}, 'properties': {'name': o['name'], 'type': o['type'], 'area': area, 'path': path, 'comp':comp}};
       let type = getType(feature);
       let layer = layers[type];
       if (!layer) continue;
