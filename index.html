@@ -192,6 +192,12 @@ let baseIcon = (options) => {
   });
 };
 
+function getIcon(feature) {
+  let type = getType(feature);
+  let icon = (types[type] || {'icon': 'misc'}).icon;
+  return icons[ icon ];
+}
+
 function getType(feature) {
   for (const[k,v] of Object.entries(types)) {
     if (!v['match']) continue;
@@ -204,7 +210,7 @@ function getType(feature) {
 const formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
 const formatCoords = c => `${c[0]}, ${-c[2]}, ${c[1]}`;
 const clampCoords = c => c.map(v=>v.toFixed(2));
-const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.path, icon: baseIcon(icons[ types[ getType(feature) ].icon ])});
+const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.path, icon: baseIcon(getIcon(feature))});
 const tooltipCallback = marker => `<b>${marker.options.feature.properties.name}</b><br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`
 const formatPath = s => s.split('/').map((part, i) => '-'.repeat(i) +'- '+ part).join('<br/>\n');
 
