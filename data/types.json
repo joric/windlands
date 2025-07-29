@@ -1,6 +1,6 @@
 {
-  "relic": { "match": "_Relic(?:_\\d+)?$", "icon": "relic", "group": "collectibles" },
-  "secret": { "match": "Secret(?:_\\d+)?$", "icon": "secret", "group": "collectibles" },
+  "relic": { "match": "_Relic(?:_\\d+)?$", "icon": "relic", "group": "secrets" },
+  "secret": { "match": "Secret(?:_\\d+)?$", "icon": "secret", "group": "secrets" },
   "checkpoint" : { "match" : "\/Checkpoint(?:_\\d+)?[^\/]*$", "icon": "checkpoint", "group": "checkpoints"},
   "part": {"match": "PossibleCollectionPosition(?:_\\d+)?$", "icon": "part", "group": "quests"},
   "bomb": {"match": "BombPart(?:_\\d+)?$", "icon": "bomb", "group": "quests"},
