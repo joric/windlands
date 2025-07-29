@@ -192,25 +192,23 @@ let baseIcon = (options) => {
   });
 };
 
-function getIcon(feature) {
-  let type = getType(feature);
-  let icon = (types[type] || {'icon': 'misc'}).icon;
-  return icons[ icon ];
-}
-
-function getType(feature) {
+function getProp(feature) {
   for (const[k,v] of Object.entries(types)) {
     if (!v['match']) continue;
     let regex = v['match'].replace('{area}', capitalize(feature.properties.area));
-    if (feature.properties.path.match(new RegExp(regex, "i"))) return k;
+    if (feature.properties.path.match(new RegExp(regex, "i"))) return v;
   }
-  return 'misc';
+  return {'type': 'misc', 'group': 'misc', 'icon': 'misc'};
 }
+
+const getIcon = f => getProp(f).icon;
+const getType = f => getProp(f).type;
+const getGroup = f =>getProp(f).group;
 
 const formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
 const formatCoords = c => `${c[0]}, ${-c[2]}, ${c[1]}`;
 const clampCoords = c => c.map(v=>v.toFixed(2));
-const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.path, icon: baseIcon(getIcon(feature))});
+const customMarker = (latlng, feature) => L.marker(latlng, {feature: feature, id: feature.properties.path, icon: baseIcon(icons[getIcon(feature)])});
 const tooltipCallback = marker => `<b>${marker.options.feature.properties.name}</b><br/>${formatZ(marker.options.feature.geometry.coordinates[1])}`
 const formatPath = s => s.split('/').map((part, i) => '-'.repeat(i) +'- '+ part).join('<br/>\n');
 
@@ -232,8 +230,8 @@ function loadMarkersRecursive(items, area, layers, prefix='', level = 0) {
       let c = clampCoords(p);
       let comp = (o['components']||[]).join(':');
       let feature = {'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': c}, 'properties': {'name': o['name'], 'type': o['type'], 'area': area, 'path': path, 'comp':comp}};
-      let type = getType(feature);
-      let layer = layers[type];
+      let group = getGroup(feature);
+      let layer = layers[group];
       if (!layer) continue;
       let marker = customMarker([-c[2], c[0]], feature, area).bindTooltip(tooltipCallback).bindPopup(popupCallback).addTo(layer);
     }
@@ -246,7 +244,7 @@ function loadMarkers(data, mapId) {
   for (id in maps) {
     localData[id] = localData[id] || {};
     localData[id].markedItems = localData[id].markedItems || {};
-    localData[id].activeLayers = localData[id].activeLayers || {'relic':true, 'secret': true };
+    localData[id].activeLayers = localData[id].activeLayers || {'collectibles':true};
   }
 
   localData.mapId = mapId;
@@ -353,11 +351,12 @@ function loadMarkers(data, mapId) {
     if (a.layer && ( a.layer._childCount < 10)) a.layer.spiderfy();
   });
 
+
+  let groups = [...new Set(Object.values(types).map(x => x.group||'misc'))];
+
   let layers = {};
-  for (const type of Object.keys(types)) {
-    //layers[type] = L.layerGroup();
-    layers[type] = L.featureGroup.subGroup(globalClusterGroup);
-    //globalClusterGroup.addLayer(layers[type]);
+  for (const group of groups) {
+    layers[group] = L.featureGroup.subGroup(globalClusterGroup);
   }
 
   loadMarkersRecursive(data.items, mapId, layers);
