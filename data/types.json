@@ -9,5 +9,5 @@
   "target": { "match": "\/(Tohir-Rollerdroid|RollerDroid \\(\\d+\\)|PossibleEnemyPosition|DroidLocation|WeakPoint|JumpPosition)(?:_\\d+)?(?: \\(\\d+\\))?$", "icon": "target", "group": "enemies"},
   "rescue": { "match": "\/PossibleRescuePosition(?: \\(\\d\\))?", "icon": "rescue", "group": "quests"},
   "fruit": { "match": "\/GoobyFruit(?: \\(\\d\\))?$", "icon": "fruit", "group": "enemies"},
-  "misc": {"icon": "misc", "group": "misc" }
+  "misc": {"icon": "misc", "group": "misc"}
 }

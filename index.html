@@ -192,17 +192,20 @@ let baseIcon = (options) => {
   });
 };
 
-function getProp(feature) {
+function getType(feature) {
   for (const[k,v] of Object.entries(types)) {
     if (!v['match']) continue;
-    let regex = v['match'].replace('{area}', capitalize(feature.properties.area));
-    if (feature.properties.path.match(new RegExp(regex, "i"))) return v;
+    let regex = v['match'];
+    if (feature.properties.path.match(new RegExp(regex, "i"))) return k;
   }
-  return {'type': 'misc', 'group': 'misc', 'icon': 'misc'};
+  return 'misc';
+}
+
+function getProp(feature) {
+  return types[getType(feature)] || {icon:'misc', group:'misc'};
 }
 
 const getIcon = f => getProp(f).icon;
-const getType = f => getProp(f).type;
 const getGroup = f =>getProp(f).group;
 
 const formatZ = z => z>0 ? `&UpArrow;${z}`: `&DownArrow;${-z}`;
@@ -352,7 +355,7 @@ function loadMarkers(data, mapId) {
   });
 
 
-  let groups = [...new Set(Object.values(types).map(x => x.group||'misc'))];
+  let groups = [...new Set( Object.values(types).map(x => x.group||'misc'))];
 
   let layers = {};
   for (const group of groups) {
