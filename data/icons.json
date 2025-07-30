@@ -3,7 +3,7 @@
   "checkpoint": {"class": "fa-solid fa-flag-checkered", "bg": "orange"},
   "secret": {"class": "fa-solid fa-star", "bg": "green"},
   "part": {"class": "fa-solid fa-gear", "bg": "violet"},
-  "bomb": {"class": "fa-solid fa-bomb", "bg": "red"},
+  "bomb": {"class": "fa-solid fa-bomb", "bg": "purple"},
   "person": {"class": "fa-solid fa-person", "bg": "cornflowerblue"},
   "enemy": {"class": "fa-solid fa-person", "bg": "red"},
   "target": {"class": "fa-solid fa-location-crosshairs", "bg": "tomato"},
