@@ -93,7 +93,7 @@ from pathlib import Path
 
 from PIL import Image, UnidentifiedImageError
 
-Image.MAX_IMAGE_PIXELS = 933120000
+Image.MAX_IMAGE_PIXELS = None
 
 LOG = logging.getLogger('gentiles')
 
