@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maptalks Example</title>
+<link rel="icon" href="data:,">
+
+<!--
+<link rel="stylesheet" href="https://unpkg.com/maptalks/dist/maptalks.css">
+<script type="text/javascript" src="https://unpkg.com/maptalks/dist/maptalks.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maptalks/1.3.0/maptalks.css" integrity="sha512-+ic8NhErEHwK6yOXaajSOYDeI4e0bagBVzvhwf8cfW4DS/YLto4VKd4YvwwYu3ZSPq71gyRCsAJiBmltZ3gPOQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maptalks/1.3.0/maptalks.min.js" integrity="sha512-h9K6IAZnVbQcfDK/ioufFKHbmfvobTO/Hswlv9jSDFclOeOlKm165IUn03ZvGLHtUL/27yzsfqysY/9BOioqWg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<link rel="stylesheet" href="js/lib/maptalks/1.3.0/maptalks.css">
+<script type="text/javascript" src="js/lib/maptalks/1.3.0/maptalks.min.js"></script>
+
+<link  href="https://cdn.jsdelivr.net/npm/maptalks-gl@0.111.0/dist/maptalks-gl.css" rel="stylesheet" >
+<script src="https://cdn.jsdelivr.net/npm/maptalks-gl@0.111.0/dist/maptalks-gl.min.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="js/lib/font-awesome/css/all.min.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+<link rel="stylesheet" href="js/lib/font-awesome/css/all.min.css" />
+
+<link href="js/lib/maptalks-gl/maptalks-gl.css" rel="stylesheet">
+<script src="js/lib/maptalks-gl/maptalks-gl.js" type="text/javascript" ></script>
+
+<link  href="https://cdn.jsdelivr.net/npm/maptalks-gl@0.111.0/dist/maptalks-gl.css" rel="stylesheet" >
+<script src="https://cdn.jsdelivr.net/npm/maptalks-gl@0.111.0/dist/maptalks-gl.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js" integrity="sha512-gBYquPLlR76UWqCwD06/xwal4so02RjIR0oyG1TIhSGwmBTRrIkQbaPehPF8iwuY9jFikDHMGEelt0DtY7jtvQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+-->
+
+<link href="js/lib/maptalks-gl/maptalks-gl.css" rel="stylesheet">
+<script src="js/lib/maptalks-gl/maptalks-gl.min.js" type="text/javascript" ></script>
+<script src="js/lib/font-awesome/js/all.min.js" type="text/javascript" ></script>
+
+<link href="js/lib/search-control/search-control.css" rel="stylesheet">
+<script type="text/javascript" src="js/lib/search-control/search-control.js"></script>
+
+
+<style>
+html, body, #map {
+  height: 100%;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  background: grey;
+}
+</style>
+
+</head>
+<body>
+
+<div tabindex=0 id="map"></div>
+
+<script>
+
+let iconImages = {};
+let iconSize = 48;
+
+let maps = {
+  jungle: {
+    bounds: {left: -2048, top: -2048, right: 2048, bottom: 2048},
+    center: {left: 0, top: 0},
+    tiles: "tiles/jungle/{z}/{x}/{y}.jpg",
+    zoomlevels: 6,
+  },
+  desert: {
+    bounds: {left: -2048, top: -2048, right: 2048, bottom: 2048},
+    center: {left: 0, top: 0},
+    tiles: 'tiles/desert/{z}/{x}/{y}.jpg',
+    zoomlevels: 6,
+  },
+  mountain: {
+    bounds: {left: -2048, top: -2048, right: 2048, bottom: 2048},
+    center: {left: 0, top: 0},
+    tiles: 'tiles/mountain/{z}/{x}/{y}.jpg',
+    zoomlevels: 6,
+  },
+}
+
+
+let map;
+let defaultPitch = 30;
+
+function getType(feature) {
+  for (const[k,v] of Object.entries(types)) {
+    if (!v['match']) continue;
+    let regex = v['match'];
+    if (feature.properties.path.match(new RegExp(regex, "i"))) return k;
+  }
+}
+
+function getProp(feature) {
+  return types[getType(feature)] || {icon:'misc', group:'misc'};
+}
+
+const getIcon = f => getProp(f).icon;
+const getGroup = f =>getProp(f).group;
+
+
+function loadMarkersRecursive(items, area, layers, prefix='', level = 0) {
+  if (!items) return;
+  for (o of items) {
+    let path = prefix + (prefix ? '/' : '') + o.name;
+    let p = o.position;
+    if (p && p.length==3 && p.every(x=>x!=0)) {
+
+      let [x,y,z] = [p[0],-p[2], p[1]];
+
+      let c = [x,y,z];
+      const clampCoords = c => c.map(v=>v.toFixed(2));
+
+      c = clampCoords(c);
+
+      //if (!o.name.includes('Relic_')) continue;
+
+      let feature = {type: 'Feature', geometry: {type: 'Point', coordinates: c}, properties: {name: o.name, type: o.type, area: area, path: path}};
+
+      let group = getGroup(feature);
+
+      //if (group!='misc' && group!='enemies') 
+      if (group!='misc') 
+      {
+
+        let getSymbol = function(o,opacity=1) {
+          return {
+            //markerFile   : 'js/lib/maptalks-gl/images/1.png',
+            markerFile   : iconImages[getIcon(feature)] || iconImages['misc'],
+            markerWidth  : iconSize,
+            markerHeight : iconSize,
+            markerDx     : 0,
+            markerDy     : -Math.round(iconSize/2),
+            markerOpacity: opacity,
+            markerVerticalAlignment: 'middle',
+          };
+        };
+
+        let line = new maptalks.LineString([[x,y,0],[x,y,z]]);
+        layers.lines = layers.lines||[];
+        layers.lines.push(line);
+
+        let marker = new maptalks.Marker([x,y,z], { symbol: getSymbol(o), feature: o });
+        layers[group] = layers[group] || [];
+        layers[group].push(marker);
+
+        marker.on('click', e=>{console.log(e.target.options.feature);});
+
+        const tooltip = new maptalks.ui.ToolTip(`${o.name} [${group}]`, {
+            showTimeout: 100, // Delay in milliseconds before showing the tooltip
+            dx: 10,           // X-offset from the geometry
+            dy: -10           // Y-offset from the geometry
+        });
+
+        tooltip.addTo(marker);
+
+      }
+
+
+    }
+
+    loadMarkersRecursive(o['children'], area, layers, path, level + 1);
+  }
+}
+
+
+function loadMap2(data, area) {
+  let config = maps[area];
+  let tileSize = 512;
+  let maxZoom = 19;
+  let mapSize = config.bounds.right - config.bounds.left;
+
+  if (map) map.remove();
+
+  map = new maptalks.Map('map', {
+    zoom: 1,
+    center: [config.center.left, config.center.top],
+    maxZoom: maxZoom,
+    spatialReference: {
+      projection: 'identity',
+      resolutions: Array.from({length: maxZoom + 1},(_,i) => mapSize / tileSize / (1<<i)),
+      fullExtent: config.bounds,
+    },
+    zoomControl: {
+      position  : {bottom: 70, right: 20},
+      zoomLevel : false,
+    },
+    doubleClickZoom: false,
+    heightFactor: 0.1, // optional
+    enableAltitude: false,
+
+    baseLayer: new maptalks.GroupTileLayer('baseLayers', 
+      Object.entries(maps).map(([name, config])=>
+        new maptalks.TileLayer(name, {
+          maxAvailableZoom: config.zoomlevels,
+          urlTemplate: config.tiles,
+          repeatWorld: false,
+          tileSize: tileSize,
+          tileSystem: [1, -1, config.bounds.left, config.bounds.top],
+          visible: name==area,
+        })
+      )
+    ),
+
+    layerSwitcherControl: {
+      position  : 'bottom-left',
+      //baseTitle : 'Base Layers',
+      //overlayTitle : 'Overlays',
+      containerClass : 'maptalks-layer-switcher',
+    },
+
+  });
+
+
+  let geometries = [];
+  let lines = [];
+
+  let layers = {};
+
+  loadMarkersRecursive(data.items, '', layers);
+
+  let groupLayer = new maptalks.GroupGLLayer('GroupGLLayer').addTo(map);
+
+  for (const [name, geometries] of Object.entries(layers)) {
+    if (name=='lines') {
+      new maptalks.LineStringLayer(name, geometries, {
+        style: { filter: true, symbol: { lineColor: '#eee', lineWidth: 4, lineOpacity: 0.75 } },
+      }).addTo(groupLayer);
+    } else {
+      new maptalks.PointLayer(name, geometries, {
+        sceneConfig: { depthFunc: '<'},
+      }).addTo(groupLayer);
+    }
+  }
+
+
+  let compassControl = new maptalks.control.Compass({position  : 'bottom-right'}).addTo(map)._compass.onclick = (e)=>map.getBearing()==0 && map.animateTo({ pitch: map.getPitch()==0 ? defaultPitch : 0 })
+
+  searchControl = new SearchControl();
+  searchControl._handleSubmit = function() {
+    //updateSearch(searchControl._input.value);
+  }
+
+  map.on('mousedown touchstart', function(e) {
+    document.getElementById('map').focus(); // needs tabindex on the map element
+  });
+
+  //map.config({heightFactor: 0.001});
+
+  map.on('viewchange', e=> {
+    let factor = map.getPitch()!=0 ? 1 : 0.0001;
+
+    //console.log(factor);
+
+    //setHeight();
+
+    //map.config({heightFactor: factor});
+  });
+
+}
+
+function setMarkerZRecursive(layer) {
+  if (layer instanceof maptalks.VectorLayer || layer instanceof maptalks.PointLayer) {
+    layer.getGeometries().forEach(g => {
+      if (g instanceof maptalks.Marker) {
+        //console.log(g);
+        g.setZIndex(0);
+      }
+    });
+  } else {
+    if (layer.getLayers) layer.getLayers().forEach(setMarkerZRecursive);
+  }
+}
+
+
+function setHeight() {
+  map.getLayers().forEach(setMarkerZRecursive);
+}
+
+
+
+function loadMap(mapId) {
+  fetch(`data/${mapId}.json`).then(r=>r.json()).then(data=>{
+    //console.log('loaded', data.features.length, 'markers');
+    loadMap2(data, mapId);
+  })
+}
+
+function renderFAIconToImageURL(fa_class, bg, fg, size=48) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+
+  function drawFAIcon(prefix, iconName, color, pixelSize, dy = 0) {
+    const icon = FontAwesome.icon({ prefix, iconName });
+    if (!icon) throw new Error(`Icon "${iconName}" not found`);
+    const [w, h, , , path] = icon.icon;
+    const scale = pixelSize / h;
+    const iconWidthPx = w * scale;
+    const dx = (size - iconWidthPx) / 2;
+    const dyPx = (size - pixelSize) / 2 + dy;
+    ctx.setTransform(scale, 0, 0, scale, dx, dyPx);
+    ctx.fillStyle = color;
+    ctx.fill(new Path2D(path));
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  function parseFAClass(faClass) {
+    const parts = faClass.trim().split(/\s+/);
+    const prefix = parts.find(p => p.startsWith('fa-') && p !== 'fa')?.replace('fa-', '') || 'solid';
+    const iconName = parts.find(p => p.startsWith('fa-') && p !== 'fa' && p !== `fa-${prefix}`)?.replace('fa-', '');
+    const prefixMap = { solid: 'fas', regular: 'far', light: 'fal', thin: 'fat', duotone: 'fad', brands: 'fab' };
+    return { prefix: prefixMap[prefix] || 'fas', iconName };
+  }
+
+  fg = fg || 'white';
+  bg = bg || 'grey';
+  let t = parseFAClass(fa_class);
+  drawFAIcon('fas', 'location-pin', 'black', size * 1.0);
+  drawFAIcon('fas', 'location-pin', bg, size * 0.976);
+  drawFAIcon(t.prefix, t.iconName, fg, size * 0.45, -size/8);
+  return canvas.toDataURL('image/png');
+}
+
+window.onload = function(event) {
+  window.addEventListener("keydown", function (e) {
+
+    if (e.code=='KeyR' && !e.ctrlKey) {
+      if (map.getBearing()!=0) {
+        map.animateTo({ bearing: 0 });
+      } else {
+        map.animateTo({ pitch: map.getPitch()==0 ? defaultPitch : 0 });
+      }
+    }
+
+    switch (e.code) {
+      case 'Digit1': loadMap(Object.keys(maps)[0]); break;
+      case 'Digit2': loadMap(Object.keys(maps)[1]); break;
+      case 'Digit3': loadMap(Object.keys(maps)[2]); break;
+    }
+
+  });
+
+
+  let promises = [
+    'data/types.json',
+    'data/icons.json',
+  ].map(url=>fetch(url).then(r=>r.json()));
+
+  Promise.all(promises).then(data => {
+    [types, icons] = data;
+    iconImages = Object.fromEntries(Object.entries(icons).map(([k,v]) => [k, renderFAIconToImageURL(v.class, v.bg, v.fg, iconSize)]));
+    loadMap(Object.keys(maps)[0]);
+  });
+}
+
+</script>
+<a href="https://github.com/joric/windlands/" target="_blank" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+</body>
+</html>
+
+
+
