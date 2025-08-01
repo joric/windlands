@@ -7,47 +7,21 @@
 <title>Windlands 2 - Maptalks</title>
 <link rel="icon" href="data:,">
 
-<!--
-<link rel="stylesheet" href="https://unpkg.com/maptalks/dist/maptalks.css">
-<script type="text/javascript" src="https://unpkg.com/maptalks/dist/maptalks.min.js"></script>
+<template id="remote">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js"></script>
+  <link  href="https://cdn.jsdelivr.net/npm/maptalks-gl@0.111.0/dist/maptalks-gl.css" rel="stylesheet" >
+  <script src="https://cdn.jsdelivr.net/npm/maptalks-gl@0.111.0/dist/maptalks-gl.min.js" type="text/javascript"></script>
+  <link href="https://joric.github.io/stalker/js/lib/search-control/search-control.css" rel="stylesheet">
+  <script src="https://joric.github.io/stalker/js/lib/search-control/search-control.js" type="text/javascript" ></script>
+</template>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maptalks/1.3.0/maptalks.css" integrity="sha512-+ic8NhErEHwK6yOXaajSOYDeI4e0bagBVzvhwf8cfW4DS/YLto4VKd4YvwwYu3ZSPq71gyRCsAJiBmltZ3gPOQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/maptalks/1.3.0/maptalks.min.js" integrity="sha512-h9K6IAZnVbQcfDK/ioufFKHbmfvobTO/Hswlv9jSDFclOeOlKm165IUn03ZvGLHtUL/27yzsfqysY/9BOioqWg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-<link rel="stylesheet" href="js/lib/maptalks/1.3.0/maptalks.css">
-<script type="text/javascript" src="js/lib/maptalks/1.3.0/maptalks.min.js"></script>
-
-<link  href="https://cdn.jsdelivr.net/npm/maptalks-gl@0.111.0/dist/maptalks-gl.css" rel="stylesheet" >
-<script src="https://cdn.jsdelivr.net/npm/maptalks-gl@0.111.0/dist/maptalks-gl.min.js" type="text/javascript"></script>
-
-<link rel="stylesheet" href="js/lib/font-awesome/css/all.min.css" />
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-
-<link rel="stylesheet" href="js/lib/font-awesome/css/all.min.css" />
-
-<link href="js/lib/maptalks-gl/maptalks-gl.css" rel="stylesheet">
-<script src="js/lib/maptalks-gl/maptalks-gl.js" type="text/javascript" ></script>
-
-<link href="js/lib/maptalks-gl/maptalks-gl.css" rel="stylesheet">
-<script src="js/lib/maptalks-gl/maptalks-gl.min.js" type="text/javascript" ></script>
-<script src="js/lib/font-awesome/js/all.min.js" type="text/javascript" ></script>
-
-<link href="js/lib/search-control/search-control.css" rel="stylesheet">
-<script src="js/lib/search-control/search-control.js" type="text/javascript" ></script>
--->
-
-<link  href="https://cdn.jsdelivr.net/npm/maptalks-gl@0.111.0/dist/maptalks-gl.css" rel="stylesheet" >
-<script src="https://cdn.jsdelivr.net/npm/maptalks-gl@0.111.0/dist/maptalks-gl.min.js" type="text/javascript"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js" integrity="sha512-gBYquPLlR76UWqCwD06/xwal4so02RjIR0oyG1TIhSGwmBTRrIkQbaPehPF8iwuY9jFikDHMGEelt0DtY7jtvQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-<link href="https://joric.github.io/stalker/js/lib/search-control/search-control.css" rel="stylesheet">
-<script src="https://joric.github.io/stalker/js/lib/search-control/search-control.js" type="text/javascript" ></script>
-
+<template id="local">
+  <script src="js/lib/font-awesome/js/all.min.js" type="text/javascript" ></script>
+  <link href="js/lib/maptalks-gl/maptalks-gl.css" rel="stylesheet">
+  <script src="js/lib/maptalks-gl/maptalks-gl.js" type="text/javascript" ></script>
+  <link href="js/lib/search-control/search-control.css" rel="stylesheet">
+  <script src="js/lib/search-control/search-control.js" type="text/javascript" ></script>
+</template>
 
 <style>
 html, body, #map {
@@ -65,6 +39,8 @@ html, body, #map {
 <div tabindex=0 id="map"></div>
 
 <script>
+
+document.head.appendChild(document.getElementById(location.protocol === 'file:' ? 'local' : 'remote').content.cloneNode(true));
 
 let iconImages = {};
 let iconSize = 48;
