@@ -1,13 +1,14 @@
 {
-  "relic": { "match": "_Relic(?:_\\d+)?$", "icon": "relic", "group": "secrets" },
-  "secret": { "match": "Secret(?:_\\d+)?$", "icon": "secret", "group": "secrets" },
-  "checkpoint" : { "match" : "\/Checkpoint(?:_\\d+)?[^\/]*$", "icon": "checkpoint", "group": "checkpoints"},
+  "relic": { "match": "_Relic(?:_\\d+)?$", "icon": "relic", "group": "collectibles" },
+  "secret": { "match": "Secret(?:_\\d+)?$", "icon": "secret", "group": "collectibles" },
+  "checkpoint" : { "match" : "\/Checkpoint(?:_\\d+)?[^\/]*$", "icon": "checkpoint", "group": "locations"},
   "part": {"match": "PossibleCollectionPosition(?:_\\d+)?$", "icon": "part", "group": "quests"},
   "bomb": {"match": "BombPart(?:_\\d+)?$", "icon": "bomb", "group": "quests"},
-  "character": { "match": "\/(Solyatta|Maako|Tohir|Rah|Taka_Character_001|LizardGuard|Ra|Saralla|Boro|Trigger-Techsmith)(?: \\(\\d+\\))?$", "icon": "person", "group": "quests" },
-  "boss": { "match": "Bosses\/.*(DropShip|Spiderbot|RocketSpiderBot|TenticleBoss|WormBoss|FlyingDroid|BloodKnight|Baldakka)(?:\\d+)?$", "icon": "enemy", "group": "enemies"},
-  "target": { "match": "\/(Tohir-Rollerdroid|RollerDroid \\(\\d+\\)|PossibleEnemyPosition|DroidLocation|WeakPoint|JumpPosition)(?:_\\d+)?(?: \\(\\d+\\))?$", "icon": "target", "group": "enemies"},
+  "character": { "match": "\/(Solyatta|Maako|Tohir|Rah|Taka_Character_001|LizardGuard|Ra|Saralla|Boro|Trigger-Techsmith)(?: \\(\\d+\\))?$", "icon": "person", "group": "NPCs" },
+  "boss": { "match": "Bosses\/.*(DropShip|Spiderbot|RocketSpiderBot|TenticleBoss|WormBoss|FlyingDroid|BloodKnight|Baldakka)(?:\\d+)?$", "icon": "enemy", "group": "NPCs"},
+  "target": { "match": "\/(WeakPoint)(?:_\\d+)?(?: \\(\\d+\\))?$", "icon": "target", "group": "locations"},
+  "droid": { "match": "\/(Tohir-Rollerdroid|RollerDroid \\(\\d+\\)|PossibleEnemyPosition|DroidLocation|JumpPosition)(?:_\\d+)?(?: \\(\\d+\\))?$", "icon": "target", "group": "NPCs"},
   "rescue": { "match": "\/PossibleRescuePosition(?: \\(\\d\\))?", "icon": "rescue", "group": "quests"},
-  "fruit": { "match": "\/GoobyFruit(?: \\(\\d\\))?$", "icon": "fruit", "group": "enemies"},
+  "fruit": { "match": "\/GoobyFruit(?: \\(\\d\\))?$", "icon": "fruit", "group": "locations"},
   "misc": {"icon": "misc", "group": "misc"}
 }
