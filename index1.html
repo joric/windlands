@@ -58,8 +58,14 @@ html, body, #map {
 
 .markers-control .group-container:focus-within {
   max-height: 281px;
-  border-radius: 8px;
+/*  border-radius: 8px;*/
   max-width: 320px;
+
+  /*
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  padding-bottom: 5px;
+  */
 }
 
 .markers-control .group-header {
@@ -75,20 +81,41 @@ html, body, #map {
   background: #eee;
 }
 
-.markers-control .items-container {
+.markers-control .items-wrapper {
+
+  /*
   border-top: 1px solid rgba(0,0,0,0.1);
-  padding-top: 6px;
-  padding-bottom: 6px;
+  */
+
+  padding-top: 0;
+  padding-bottom: 0;
+
   max-width: 50px;
   transition: all 0.3s ease;
+
+  position: absolute;
+
+/*  margin-top: 12px;*/
+
+  overflow: hidden;
+  max-height: 0;
 }
 
-.markers-control .group-container:focus-within .items-container {
+.markers-control .items-container {
+  background-color: white;
+  border-radius: 8px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.markers-control .group-container:focus-within .items-wrapper {
   max-width: 320px;
+  display: block;
+  max-height: 320px;
 }
 
 .markers-control .item {
-  padding: 6px 10px;
+  padding: 6px 20px;
   cursor: pointer;
   display: flex;
   gap: 4px;
@@ -104,6 +131,15 @@ html, body, #map {
   text-overflow: ellipsis;
   overflow: hidden;
   padding-right: 8px;
+}
+
+.arrow {
+  margin-left: 16px;
+  height: 0px;
+  width: 0px;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid white;
 }
 
 </style>
@@ -463,9 +499,17 @@ class MarkersControl {
         items.push([type, count, type]);
       }
 
+      let itemsWrapper = document.createElement('div');
+      itemsWrapper.className = 'items-wrapper';
+      groupContainer.append(itemsWrapper);
+
+      let arrow = document.createElement('div');
+      arrow.className = 'arrow';
+      itemsWrapper.append(arrow);
+
       let itemsContainer = document.createElement('div');
       itemsContainer.className = 'items-container';
-      groupContainer.append(itemsContainer);
+      itemsWrapper.append(itemsContainer);
 
       for (const [title, count, type] of items.sort(cmpAlphaNum)) {
         let groupItem = document.createElement('div');
