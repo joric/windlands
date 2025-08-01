@@ -4,7 +4,7 @@
 <base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Windlands 2 - Maptalks</title>
+<title>Joric's Windlands 2 Interactive Map</title>
 <link rel="icon" href="data:,">
 
 <template id="remote">
@@ -53,20 +53,21 @@ html, body, #map {
   border: 1px solid rgba(0,0,0,0.1);
   transition: all 0.3s ease;
   max-height: 32px;
+  max-width: 320px;
+}
 
-  max-width: 110px;
-
+.markers-control .group-container:focus-within {
+  max-height: 281px;
+  border-radius: 8px;
+  max-width: 320px;
 }
 
 .markers-control .group-header {
   cursor: pointer;
   padding: 8px 16px;
-
   text-align: center;
-
   overflow: hidden;
   text-overflow: ellipsis;
-
   opacity: 0.6;
 }
 
@@ -74,17 +75,16 @@ html, body, #map {
   background: #eee;
 }
 
-.markers-control .group-container:focus-within {
-  max-height: 281px;
-  border-radius: 8px;
-
-  max-width: 160px;
-}
-
 .markers-control .items-container {
   border-top: 1px solid rgba(0,0,0,0.1);
   padding-top: 6px;
   padding-bottom: 6px;
+  max-width: 50px;
+  transition: all 0.3s ease;
+}
+
+.markers-control .group-container:focus-within .items-container {
+  max-width: 320px;
 }
 
 .markers-control .item {
