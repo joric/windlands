@@ -49,21 +49,36 @@ html, body, #map {
   background-color: white;
   border-radius: 16px;
   padding: 0px;
-  text-align: center;
   overflow: hidden;
   border: 1px solid rgba(0,0,0,0.1);
   transition: all 0.3s ease;
   max-height: 32px;
+
+  max-width: 110px;
+
 }
 
 .markers-control .group-header {
   cursor: pointer;
-  padding: 8px 8px;
+  padding: 8px 16px;
+
+  text-align: center;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  opacity: 0.6;
 }
 
-.markers-control .group-container:hover {
+.markers-control .group-header:hover {
+  background: #eee;
+}
+
+.markers-control .group-container:focus-within {
   max-height: 281px;
   border-radius: 8px;
+
+  max-width: 160px;
 }
 
 .markers-control .items-container {
@@ -76,7 +91,7 @@ html, body, #map {
   padding: 6px 10px;
   cursor: pointer;
   display: flex;
-  gap: 5px;
+  gap: 4px;
 }
 
 .markers-control .item:hover {
@@ -88,6 +103,7 @@ html, body, #map {
   text-align: left;
   text-overflow: ellipsis;
   overflow: hidden;
+  padding-right: 8px;
 }
 
 </style>
@@ -296,6 +312,8 @@ function loadMap2(data, area) {
     //updateSearch(searchControl._input.value);
   }
 
+  searchControl._input.setAttribute('placeholder', 'Windlands 2');
+
   markersControl = new MarkersControl(counters, {icons: icons});
 
   map.on('mousedown touchstart', function(e) {
@@ -452,6 +470,7 @@ class MarkersControl {
       for (const [title, count, type] of items.sort(cmpAlphaNum)) {
         let groupItem = document.createElement('div');
         groupItem.className = 'item';
+        groupItem.tabIndex = 0;
 
         let c0 = document.createElement('i');
         c0.className = (options.icons && options.icons[type] || {'class': 'fa fa-question'}).class;
