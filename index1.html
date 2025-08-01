@@ -35,39 +35,59 @@ html, body, #map {
 .markers-control {
   position: absolute;
   left: 250px;
-  top: 24px;
+  top: 28px;
   z-index: 1000;
-}
-
-.markers-control-groups {
-  display: flex;
-  flex-direction: row;
-}
-
-.markers-control-group {
-  background-color: white;
-  color: black;
-  border-radius: 20px;
-  padding: 10px 15px;
   font-family: sans-serif;
   font-size: 14px;
-  cursor: pointer;
-
-  display: block;
-  align-items: center;
-  opacity: .95;
-  position: relative;
-  padding: 3px 6px;
-  cursor: pointer;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
 }
 
-.markers-control-item {
+.markers-control .group-container {
+  background-color: white;
+  border-radius: 12px;
+  padding: 0px;
+  text-align: center;
+  max-height: 26px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.markers-control .group-header {
+  cursor: pointer;
+  padding: 6px;
+}
+
+.markers-control .group-container:hover {
+  max-height: 281px;
+  border-radius: 8px;
+}
+
+.markers-control .items-container {
+  border-top: 1px solid rgba(0,0,0,0.1);
+  padding-top: 4px;
+  padding-bottom: 6px;
+}
+
+.markers-control .item {
+  padding: 6px 10px;
+  cursor: pointer;
   display: flex;
   gap: 5px;
+}
+
+.markers-control .item:hover {
+  background: #eee;
+}
+
+.markers-control .item .title {
+  flex: 1;
+  text-align: left;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 </style>
@@ -152,7 +172,7 @@ function loadMarkersRecursive(items, area, layers, counters, icons, prefix='', l
       let t = getProp(feature);
 
       //if (group!='misc' && group!='enemies') 
-      //if (t.group!='misc') 
+      if (t.group!='misc') 
       {
 
         let getSymbol = function(o,opacity=1) {
@@ -395,16 +415,10 @@ window.onload = function(event) {
 class MarkersControl {
   constructor(counters, options) {
 
-    const innerHTML = `
-      <div class="markers-control">
-        <div class="markers-control-groups"></div>
-      </div>
-    `;
+    let controlElement = document.createElement('div');
+    controlElement.className = 'markers-control';
 
-    document.body.insertAdjacentHTML('beforeend', innerHTML);
-
-    let groupsContainer = document.querySelector('.markers-control-groups');
-    let nodes = [];
+    let outerContainer = controlElement;
 
     const cmpNum = (a,b)=> b[1]!=a[1] ? (b[1]-a[1]) : a[0].localeCompare(b[0]);
     const cmpAlphaNum = (a,b) => a[0].localeCompare(b[0], 'en', { numeric: true });
@@ -414,20 +428,30 @@ class MarkersControl {
     let weights = {'misc': -1000};
 
     for (const group of groups.sort(  (a,b)=> (weights[b]||0)-(weights[a]||0) || cmpAlphaNum(a,b)) ) {
-      let itemsContainer = document.createElement('div');
-      nodes.push(itemsContainer);
+      let groupContainer = document.createElement('div');
 
-      itemsContainer.className = 'markers-control-group';
-      itemsContainer.textContent = capitalize(group);
+      outerContainer.append(groupContainer);
+
+      groupContainer.className = 'group-container';
+
+      let groupHeader = document.createElement('div');
+      groupHeader.className = 'group-header';
+      groupHeader.textContent = capitalize(group);
+      groupHeader.tabIndex = 0;
+      groupContainer.append(groupHeader);
 
       let items = [];
       for (const [type, count] of Object.entries(counters[group])) {
         items.push([type, count, type]);
       }
 
+      let itemsContainer = document.createElement('div');
+      itemsContainer.className = 'items-container';
+      groupContainer.append(itemsContainer);
+
       for (const [title, count, type] of items.sort(cmpAlphaNum)) {
         let groupItem = document.createElement('div');
-        groupItem.className = 'markers-control-item';
+        groupItem.className = 'item';
 
         let c0 = document.createElement('i');
         c0.className = (options.icons && options.icons[type] || {'class': 'fa fa-question'}).class;
@@ -448,7 +472,8 @@ class MarkersControl {
 
     }
 
-    groupsContainer.replaceChildren(...nodes);
+
+    document.body.append(controlElement);
 
   }
 }
