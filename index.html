@@ -247,7 +247,7 @@ function loadMarkers(data, mapId) {
   for (id in maps) {
     localData[id] = localData[id] || {};
     localData[id].markedItems = localData[id].markedItems || {};
-    localData[id].activeLayers = localData[id].activeLayers || {'secrets':true, 'checkpoints': true};
+    localData[id].activeLayers = localData[id].activeLayers || {'collectibles':true};
   }
 
   localData.mapId = mapId;

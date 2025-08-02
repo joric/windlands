@@ -165,6 +165,9 @@ let maps = {
   },
 }
 
+let localDataName = 'joricsWindlands';
+let localData = JSON.parse(localStorage.getItem(localDataName)) || {};
+let settings = null;
 
 let map;
 let defaultPitch = 30;
@@ -257,11 +260,14 @@ function loadMarkersRecursive(items, area, layers, counters, icons, prefix='', l
 }
 
 
-function loadMap2(data, area) {
-  let config = maps[area];
+function loadMap2(data, mapId) {
+  let config = maps[mapId];
+  let area = mapId;
   let tileSize = config.tileSize;
   let mapSize = config.bounds.right - config.bounds.left;
   let maxZoom = 19;
+
+  settings = localData[mapId];
 
   if (map) map.remove();
 
@@ -343,15 +349,26 @@ function loadMap2(data, area) {
   //map.config({heightFactor: 0.001});
 
   map.on('viewchange', e=> {
-    let factor = map.getPitch()!=0 ? 1 : 0.0001;
-
-    //console.log(factor);
-
-    //setHeight();
-
-    //map.config({heightFactor: factor});
+    settings.center = [e.new.center[0],e.new.center[1]];
+    settings.bearing = e.new.bearing;
+    settings.pitch = e.new.pitch;
+    settings.zoom = e.new.zoom;
+    //if (enableAltitude && autoAltitude) {
+      //groupLayer.setOptions({enableAltitude: map.getPitch()!=0});
+    //}
+    //console.log('zoom', settings.zoom);
+    saveSettings();
   });
 
+  map.setView({
+    center: settings.center || center,
+    zoom: settings.zoom || 0,
+    bearing: settings.bearing || 0,
+    pitch: settings.pitch || 0,
+  })
+
+  localData.mapId = mapId;
+  saveSettings();
 }
 
 function setMarkerZRecursive(layer) {
@@ -441,6 +458,8 @@ window.onload = function(event) {
 
   });
 
+  localData.mapId = localData.mapId || Object.keys(maps)[0];
+  let mapId = localData.mapId;
 
   let promises = [
     'data/types.json',
@@ -450,8 +469,12 @@ window.onload = function(event) {
   Promise.all(promises).then(data => {
     [typeData, iconData] = data;
     iconImages = Object.fromEntries(Object.entries(iconData).map(([k,v]) => [k, renderFAIconToImageURL(v.class, v.bg, v.fg, iconSize)]));
-    loadMap(Object.keys(maps)[0]);
+    loadMap(mapId);
   });
+}
+
+function saveSettings() {
+  localStorage.setItem(localDataName, JSON.stringify(localData));
 }
 
 class MarkersControl {
