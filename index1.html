@@ -13,6 +13,8 @@
   <script src="https://cdn.jsdelivr.net/npm/maptalks-gl@0.111.0/dist/maptalks-gl.min.js"></script>
   <link href="https://joric.github.io/maps/src/controls/search-control/search-control.css" rel="stylesheet">
   <script src="https://joric.github.io/maps/src/controls/search-control/search-control.js"></script>
+  <link href="https://joric.github.io/maps/src/controls/markers-control/markers-control.css" rel="stylesheet">
+  <script src="https://joric.github.io/maps/src/controls/markers-control/markers-control.js"></script>
 </template>
 
 <template id="local">
@@ -21,6 +23,8 @@
   <script src="../../lib/maptalks-gl/maptalks-gl.js"></script>
   <link href="../../src/controls/search-control/search-control.css" rel="stylesheet">
   <script src="../../src/controls/search-control/search-control.js"></script>
+  <link href="../../src/controls/markers-control/markers-control.css" rel="stylesheet">
+  <script src="../../src/controls/markers-control/markers-control.js"></script>
 </template>
 
 <style>
@@ -31,101 +35,6 @@ html, body, #map {
   width: 100%;
   background: grey;
 }
-
-.markers-control {
-  font-family: sans-serif;
-  font-size: 14px;
-  position: absolute;
-  left: 244px;
-  top: 29px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 6px;
-}
-
-.markers-control .group-wrapper {
-  background-color: white;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
-  max-width: 320px;
-
-  box-shadow: 0 2px 2px rgba(0,0,0,0.2);
-}
-
-.markers-control .group-wrapper:focus-within {
-  max-height: 281px;
-  max-width: 320px;
-}
-
-.markers-control .group-header {
-  cursor: pointer;
-  padding: 5px 12px;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  opacity: 0.6;
-}
-
-.markers-control .group-header:hover {
-  background: #eee;
-}
-
-.markers-control .items-wrapper {
-  padding-top: 0;
-  padding-bottom: 0;
-  max-width: 50px;
-  transition: all 0.3s ease;
-  position: absolute;
-  overflow: hidden;
-  max-height: 0;
-}
-
-.markers-control .items-container {
-  background-color: white;
-  border-radius: 8px;
-  padding-top: 9px;
-  padding-bottom: 8px;
-}
-
-.markers-control .group-wrapper:focus-within .items-wrapper {
-  max-width: 320px;
-  display: block;
-  max-height: 320px;
-}
-
-.markers-control .item {
-  padding: 6px 14px;
-  cursor: pointer;
-  display: flex;
-  gap: 4px;
-}
-
-.markers-control .item:hover {
-  background: #eee;
-}
-
-.markers-control .item .title {
-  flex: 1;
-  text-align: left;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  padding-right: 8px;
-}
-
-.arrow {
-  margin-top: 4px;
-  margin-left: 16px;
-  height: 0px;
-  width: 0px;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 8px solid white;
-}
-
 </style>
 
 </head>
@@ -340,7 +249,15 @@ function loadMap2(data, mapId) {
 
   searchControl._input.setAttribute('placeholder', 'Windlands 2');
 
-  markersControl = new MarkersControl(counters, {icons: icons});
+  function toggleGroup(name) {
+    //console.log('toggle group:', name);
+  }
+
+  function toggleItem(name) {
+    //console.log('toggle item:', name);
+  }
+
+  markersControl = new MarkersControl(counters, {icons: icons, weights:{'misc':-1000}, groupCallback: toggleGroup, itemCallback: toggleItem });
 
   map.on('mousedown touchstart', function(e) {
     document.getElementById('map').focus(); // needs tabindex on the map element
@@ -477,84 +394,6 @@ function saveSettings() {
   localStorage.setItem(localDataName, JSON.stringify(localData));
 }
 
-class MarkersControl {
-  constructor(counters, options) {
-
-    document.querySelector('.markers-control')?.remove();
-
-    let controlElement = document.createElement('div');
-    controlElement.className = 'markers-control';
-
-    let outerContainer = controlElement;
-
-    const cmpNum = (a,b)=> b[1]!=a[1] ? (b[1]-a[1]) : a[0].localeCompare(b[0]);
-    const cmpAlphaNum = (a,b) => a[0].localeCompare(b[0], 'en', { numeric: true });
-    const capitalize = s => s[0].toUpperCase()+s.slice(1);
-
-    let groups = Object.keys(counters);
-    let weights = {'misc': -1000};
-
-    for (const group of groups.sort(  (a,b)=> (weights[b]||0)-(weights[a]||0) || cmpAlphaNum(a,b)) ) {
-      let groupWrapper = document.createElement('div');
-
-      outerContainer.append(groupWrapper);
-
-      groupWrapper.className = 'group-wrapper';
-
-      let groupHeader = document.createElement('div');
-      groupHeader.className = 'group-header';
-      groupHeader.textContent = capitalize(group);
-      groupHeader.tabIndex = 0;
-      groupWrapper.append(groupHeader);
-
-      let items = [];
-      for (const [type, count] of Object.entries(counters[group])) {
-        items.push([type, count, type]);
-      }
-
-      let itemsWrapper = document.createElement('div');
-      itemsWrapper.className = 'items-wrapper';
-      groupWrapper.append(itemsWrapper);
-
-      let arrow = document.createElement('div');
-      arrow.className = 'arrow';
-      itemsWrapper.append(arrow);
-
-      let itemsContainer = document.createElement('div');
-      itemsContainer.className = 'items-container';
-      itemsWrapper.append(itemsContainer);
-
-      for (const [title, count, type] of items.sort(cmpAlphaNum)) {
-        let groupItem = document.createElement('div');
-        groupItem.className = 'item';
-        groupItem.tabIndex = 0;
-
-        let c0 = document.createElement('i');
-        c0.className = (options.icons && options.icons[type] || {'class': 'fa fa-question'}).class;
-
-        let c1 = document.createElement('span');
-        c1.textContent = capitalize(title);
-        c1.className = 'title';
-
-        let c2 = document.createElement('span');
-        c2.textContent = count;
-        c2.className = 'bubble';
-
-        groupItem.appendChild(c0);
-        groupItem.appendChild(c1);
-        groupItem.appendChild(c2);
-        itemsContainer.appendChild(groupItem);
-      }
-
-    }
-
-    document.body.append(controlElement);
-  }
-}
-
 </script>
 </body>
 </html>
-
-
-
