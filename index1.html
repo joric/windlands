@@ -44,7 +44,7 @@ html, body, #map {
   padding: 0;
   margin: 16px;
   gap: 8px;
-  align-items: top;
+  align-items: start;
 }
 
 </style>
@@ -401,7 +401,7 @@ window.onload = function(event) {
     [typeData, iconData] = data;
     iconImages = Object.fromEntries(Object.entries(iconData).map(([k,v]) => [k, renderFAIconToImageURL(v.class, v.bg, v.fg, iconSize)]));
     loadMap(mapId);
-  });
+  }).catch(()=> alert('Could not load files. Maybe CORS? Use --allow-file-access-from-files'));
 }
 
 function saveSettings() {
