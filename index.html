@@ -96,22 +96,42 @@ let map;
 let defaultPitch = 30;
 let typeData = null;
 let iconData = null;
+let counters = {};
 
+/*
 function getType(feature) {
   for (const[k,v] of Object.entries(typeData)) {
     if (!v['match']) continue;
     let regex = v['match'];
-    if (feature.properties.path.match(new RegExp(regex, "i"))) return k;
+    if (feature && feature.properties && feature.properties.path.match(new RegExp(regex, "i"))) return k;
   }
 }
+*/
 
-function getProp(feature) {
-  let type = getType(feature);
-  return {...(typeData[type] || {icon:'misc', group:'misc'}), type: type};
+function getType(feature) {
+  let type = feature.properties.type;
+  let prop = typeData[type];
+
+  let newType = prop && (prop.material?.[feature.properties.material] || prop.color?.[feature.properties.color] || prop.name?.[feature.properties.name]);
+
+  for (const[k,v] of Object.entries(typeData)) {
+    if (!v['match']) continue;
+    let regex = v['match'];
+    if (feature && feature.properties && feature.properties.path.match(new RegExp(regex, "i"))) newType = k;
+  }
+
+
+  if (typeData[newType]) {
+    prop = typeData[newType];
+    type = newType;
+  }
+
+
+  return {...prop || {icon:'misc', group:'misc'}, type: type, title: (prop||{}).title || translate(feature.properties.type)};
 }
 
-const getIcon = f => getProp(f).icon;
-const getGroup = f =>getProp(f).group;
+const getIcon = f => getType(f).icon;
+const getGroup = f =>getType(f).group;
 
 function loadMarkersRecursive(items, area, layers, counters, icons, prefix='', level = 0) {
   if (!items) return;
@@ -131,7 +151,7 @@ function loadMarkersRecursive(items, area, layers, counters, icons, prefix='', l
 
       let feature = {type: 'Feature', geometry: {type: 'Point', coordinates: c}, properties: {name: o.name, type: o.type, area: area, path: path}};
 
-      let t = getProp(feature);
+      let t = getType(feature);
 
       //if (group!='misc' && group!='enemies') 
       if (t.group!='misc') 
@@ -183,6 +203,109 @@ function loadMarkersRecursive(items, area, layers, counters, icons, prefix='', l
 }
 
 
+function getBaseName(name) {
+  return name && name.split(':').shift();
+}
+
+function toggleMarked(id) {
+  let name = getBaseName(id);
+
+  if (settings.markedItems[name]) {
+    delete settings.markedItems[name];
+  } else {
+    settings.markedItems[name] = true;
+  }
+
+  let groupLayer = map.getLayer('GroupGLLayer');
+  for (const layer of groupLayer.getLayers()) {
+    for (marker of layer._geoList) {
+      if (getBaseName(marker.feature.properties.name) == name) {
+        let opacity = settings.markedItems[name] ? markedOpacity : 1;
+        marker.updateSymbol({markerOpacity: opacity, lineOpacity: opacity });
+      }
+    }
+  }
+
+  saveSettings();
+}
+
+function capitalize(s) {
+  return s[0].toUpperCase()+s.slice(1);
+}
+
+function splitCamelCase(s) {
+  return s.split(/(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z&&[^s]])/);
+}
+
+function translate(s) {
+  return splitCamelCase(s.replace('_C','')).map(capitalize).join(' ');
+}
+
+function updateItems() {
+  searchControl._input.value='';
+
+  let groupLayer = map.getLayer('GroupGLLayer');
+
+  for (const layer of groupLayer.getLayers()) {
+    for (marker of layer._geoList) {
+
+      let t = getType(marker.feature);
+      let type = getBaseName(t.type);
+
+      if (settings.activeItems[type]) {
+        marker.show();
+      } else {
+        marker.hide();
+      }
+    }
+  }
+
+  document.querySelectorAll('.markers-control-group').forEach(group => {
+    const items = group.parentElement.querySelectorAll('.markers-control-item');
+    let anySelected = false;
+    items.forEach(item => {
+      let type = getBaseName(item.dataset.name);
+      const selected = settings.activeItems[type]==true;
+      item.classList.toggle('selected', selected);
+      anySelected ||= selected;
+    });
+    group.classList.toggle('selected', anySelected);
+  });
+
+  saveSettings();
+}
+
+function toggleGroup(group) {
+  let counter = 0;
+  let total = 0;
+
+  for (const name of Object.keys(counters[group])) {
+    if (settings.activeItems[name]!=true) counter += 1;
+    total += 1;
+  }
+
+  let selected = false;
+
+  if (counter==total) {
+    selected = true;
+  }
+
+  for (const name of Object.keys(counters[group])) {
+    if (selected) {
+      settings.activeItems[name] = true;
+    } else {
+      delete settings.activeItems[name];
+    }
+  }
+
+  updateItems();
+}
+
+function toggleItem(name) {
+  settings.activeItems[name] = !settings.activeItems[name];
+  updateItems();
+}
+
 function loadMap2(data, mapId) {
   let config = maps[mapId];
   let area = mapId;
@@ -194,6 +317,8 @@ function loadMap2(data, mapId) {
     localData[id] = localData[id] || {};
     localData[id].markedItems = localData[id].markedItems || {};
     localData[id].activeLayers = localData[id].activeLayers || {'collectibles':true};
+    localData[id].filter = localData[id].filter!==undefined ? localData[id].filter : '';
+    localData[id].activeItems = localData[id].activeItems || {};
   }
 
   let theme = '';//'glass';
@@ -244,7 +369,6 @@ function loadMap2(data, mapId) {
   });
 
   let layers = {};
-  let counters = {};
   let icons = {};
 
   loadMarkersRecursive(data.items, '', layers, counters, icons);
@@ -271,15 +395,6 @@ function loadMap2(data, mapId) {
   }
 
   //searchControl._input.setAttribute('placeholder', 'Windlands 2');
-
-  function toggleGroup(name) {
-    //console.log('toggle group:', name);
-  }
-
-  function toggleItem(name) {
-    //console.log('toggle item:', name);
-  }
-
 
   markersControl = new MarkersControl(counters, {icons: icons, weights:{'misc':-1000}, groupCallback: toggleGroup, itemCallback: toggleItem, theme: theme });
 
@@ -309,6 +424,19 @@ function loadMap2(data, mapId) {
   })
 
   localData.mapId = mapId;
+
+  document.querySelectorAll('.markers-control-group').forEach(group => {
+    const items = group.parentElement.querySelectorAll('.markers-control-item');
+    let anySelected = false;
+    items.forEach(item => {
+      let type = getBaseName(item.dataset.name);
+      const selected = settings.activeItems[type]==true;
+      item.classList.toggle('selected', selected);
+      anySelected ||= selected;
+    });
+    group.classList.toggle('selected', anySelected);
+  });
+
   saveSettings();
 }
 
